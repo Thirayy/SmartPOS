@@ -1,198 +1,536 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { fetchApi } from "@/lib/api";
-import { Plus, AlertTriangle } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { AlertTriangle, Package, Plus, Search, X } from "lucide-react";
+import { fetchApi, getBusinessId } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Modal } from "@/components/ui/modal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState, ErrorState } from "@/components/ui/states";
+import {
+  cn,
+  formatNumber,
+  formatRupiah,
+  getInitials,
+  getProductTone,
+} from "@/lib/utils";
 
 interface Product {
   id: number;
   name: string;
-  sku: string;
-  selling_price: number;
-  cost_price: number;
+  sku: string | null;
+  selling_price: number | string;
+  cost_price: number | string;
   stock: number;
   low_stock_threshold: number;
 }
 
+interface ProductForm {
+  name: string;
+  sku: string;
+  sellingPrice: string;
+  costPrice: string;
+  stock: string;
+  lowStockThreshold: string;
+}
+
+const initialForm: ProductForm = {
+  name: "",
+  sku: "",
+  sellingPrice: "",
+  costPrice: "",
+  stock: "",
+  lowStockThreshold: "5",
+};
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : "Gagal memuat atau menyimpan produk.";
+
+const inputClass =
+  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950";
+
+const labelClass =
+  "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
+
+function ProductsSkeleton() {
+  return (
+    <Card className="overflow-hidden">
+      <div className="border-b border-slate-100 p-4 dark:border-slate-800">
+        <Skeleton className="h-4 w-40" />
+      </div>
+      <div className="divide-y divide-slate-100 dark:divide-slate-800">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div key={index} className="flex items-center gap-3 p-4">
+            <Skeleton className="h-9 w-9 rounded-lg" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <Skeleton className="hidden h-4 w-24 sm:block" />
+            <Skeleton className="h-6 w-20 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 export default function ProductsPage() {
-  const businessId = 1;
+  const businessId = getBusinessId();
+
   const [products, setProducts] = useState<Product[]>([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [name, setName] = useState("");
-  const [sku, setSku] = useState("");
-  const [sellingPrice, setSellingPrice] = useState("");
-  const [costPrice, setCostPrice] = useState("");
-  const [stock, setStock] = useState("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [onlyLowStock, setOnlyLowStock] = useState(false);
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [form, setForm] = useState<ProductForm>(initialForm);
+  const [formError, setFormError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      if (businessId === null) {
+        setError("Sesi login tidak ditemukan. Silakan masuk kembali.");
+        return;
+      }
+      const res = await fetchApi(`/businesses/${businessId}/products`);
+      setProducts(Array.isArray(res) ? res : []);
+    } catch (loadError) {
+      setError(getErrorMessage(loadError));
+    } finally {
+      setLoading(false);
+    }
+  }, [businessId]);
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    let cancelled = false;
 
-  const loadProducts = async () => {
-    try {
-      const res = await fetchApi(`/businesses/${businessId}/products`);
-      setProducts(res);
-    } catch (err: any) {
-      setError(err.message);
-    }
+    void (async () => {
+      if (businessId === null) {
+        setError("Sesi login tidak ditemukan. Silakan masuk kembali.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetchApi(`/businesses/${businessId}/products`);
+        if (cancelled) return;
+        setProducts(Array.isArray(res) ? res : []);
+        setError("");
+      } catch (loadError) {
+        if (!cancelled) setError(getErrorMessage(loadError));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [businessId]);
+
+  const lowStockCount = useMemo(
+    () =>
+      products.filter(
+        (product) =>
+          Number(product.stock) > 0 && Number(product.stock) <= product.low_stock_threshold
+      ).length,
+    [products]
+  );
+
+  const filteredProducts = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return products.filter((product) => {
+      const matchesSearch =
+        !query ||
+        product.name.toLowerCase().includes(query) ||
+        (product.sku ?? "").toLowerCase().includes(query);
+
+      const stock = Number(product.stock);
+      const matchesStock = !onlyLowStock || (stock > 0 && stock <= product.low_stock_threshold);
+
+      return matchesSearch && matchesStock;
+    });
+  }, [products, search, onlyLowStock]);
+
+  const openAddModal = () => {
+    setForm(initialForm);
+    setFormError("");
+    setShowAddModal(true);
   };
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const closeAddModal = () => {
+    if (saving) return;
+    setShowAddModal(false);
+    setFormError("");
+  };
+
+  const updateForm = (field: keyof ProductForm, value: string) => {
+    setForm((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleCreateProduct = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setFormError("");
+
+    if (!form.name.trim()) {
+      setFormError("Nama produk wajib diisi.");
+      return;
+    }
+
+    if (!form.sellingPrice || !form.costPrice) {
+      setFormError("Harga beli dan harga jual wajib diisi.");
+      return;
+    }
+
+    setSaving(true);
+
     try {
+      if (businessId === null) {
+        throw new Error("Sesi login tidak ditemukan. Silakan masuk kembali.");
+      }
       await fetchApi(`/businesses/${businessId}/products`, {
         method: "POST",
         body: JSON.stringify({
-          name,
-          sku: sku || null,
-          selling_price: parseFloat(sellingPrice),
-          cost_price: parseFloat(costPrice),
-          stock: parseInt(stock) || 0,
+          name: form.name.trim(),
+          sku: form.sku.trim() || null,
+          selling_price: Number(form.sellingPrice),
+          cost_price: Number(form.costPrice),
+          stock: Number(form.stock) || 0,
+          low_stock_threshold: Number(form.lowStockThreshold) || 5,
         }),
       });
+
       setShowAddModal(false);
-      setName("");
-      setSku("");
-      setSellingPrice("");
-      setCostPrice("");
-      setStock("");
-      loadProducts();
-    } catch (err: any) {
-      alert(err.message);
+      setForm(initialForm);
+      void loadProducts();
+    } catch (createError) {
+      setFormError(getErrorMessage(createError));
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Manajemen Produk & Stok</h1>
-          <p className="text-sm text-gray-500">Kelola katalog barang dan pantau ambang batas stok minimum.</p>
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+            Inventaris
+          </div>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+            Produk & stok
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Kelola katalog barang dan pantau stok yang perlu segera diisi.
+          </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-[#28665A] text-white font-medium px-4 py-2.5 rounded-xl hover:bg-[#205248] transition shadow-sm flex items-center gap-2 text-sm cursor-pointer"
-        >
-          <Plus className="w-4 h-4" /> Tambah Produk
-        </button>
+
+        <div className="flex items-center gap-2">
+          {lowStockCount > 0 ? (
+            <Badge tone="amber">
+              <AlertTriangle className="h-3 w-3" />
+              {lowStockCount} stok menipis
+            </Badge>
+          ) : (
+            <Badge tone="emerald">
+              <Package className="h-3 w-3" />
+              Stok aman
+            </Badge>
+          )}
+          <Button onClick={openAddModal}>
+            <Plus className="h-4 w-4" />
+            Tambah produk
+          </Button>
+        </div>
       </div>
 
-      {error && <div className="p-4 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
+      <Card className="p-4 sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">Daftar produk</h2>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              {loading
+                ? "Memuat katalog produk..."
+                : `${formatNumber(filteredProducts.length)} dari ${formatNumber(products.length)} produk`}
+            </p>
+          </div>
 
-      {/* Modal Tambah Produk */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-            <h2 className="text-lg font-bold text-gray-800">Tambah Produk Baru</h2>
-            <form onSubmit={handleCreateProduct} className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Nama Produk</label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#28665A]"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">SKU (Opsional)</label>
-                  <input
-                    type="text"
-                    value={sku}
-                    onChange={(e) => setSku(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#28665A]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Stok Awal</label>
-                  <input
-                    type="number"
-                    required
-                    value={stock}
-                    onChange={(e) => setStock(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#28665A]"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Harga Beli (Cost)</label>
-                  <input
-                    type="number"
-                    required
-                    value={costPrice}
-                    onChange={(e) => setCostPrice(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#28665A]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Harga Jual (Selling)</label>
-                  <input
-                    type="number"
-                    required
-                    value={sellingPrice}
-                    onChange={(e) => setSellingPrice(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#28665A]"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 pt-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-64">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Cari produk atau SKU..."
+                aria-label="Cari produk"
+                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-9 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950"
+              />
+              {search ? (
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100"
+                  onClick={() => setSearch("")}
+                  aria-label="Hapus pencarian"
+                  className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                 >
-                  Batal
+                  <X className="h-3.5 w-3.5" />
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#28665A] text-white rounded-xl text-sm font-medium hover:bg-[#205248]"
-                >
-                  Simpan Produk
-                </button>
-              </div>
-            </form>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              onClick={() => setOnlyLowStock((value) => !value)}
+              className={cn(
+                "h-10 shrink-0 cursor-pointer rounded-xl border px-3 text-xs font-semibold transition active:scale-[0.98]",
+                onlyLowStock
+                  ? "border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-500 dark:bg-amber-500/10 dark:text-amber-300"
+                  : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-white"
+              )}
+            >
+              Stok menipis
+            </button>
           </div>
         </div>
+      </Card>
+
+      {loading ? (
+        <ProductsSkeleton />
+      ) : error ? (
+        <ErrorState title="Produk gagal dimuat" message={error} onRetry={() => void loadProducts()} />
+      ) : products.length === 0 ? (
+        <EmptyState
+          icon={Package}
+          title="Belum ada produk"
+          description="Mulai dengan menambahkan produk pertama Anda agar bisa berjualan di kasir."
+          action={
+            <Button onClick={openAddModal}>
+              <Plus className="h-4 w-4" />
+              Tambah produk
+            </Button>
+          }
+        />
+      ) : filteredProducts.length === 0 ? (
+        <EmptyState
+          icon={Search}
+          title="Produk tidak ditemukan"
+          description="Coba kata kunci lain atau matikan filter stok menipis."
+          action={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearch("");
+                setOnlyLowStock(false);
+              }}
+            >
+              Reset filter
+            </Button>
+          }
+        />
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] uppercase tracking-wider text-slate-400 dark:border-slate-800 dark:bg-slate-800/30 dark:text-slate-500">
+                  <th className="px-4 py-3 font-semibold">Produk</th>
+                  <th className="hidden px-4 py-3 font-semibold md:table-cell">Harga beli</th>
+                  <th className="px-4 py-3 font-semibold">Harga jual</th>
+                  <th className="hidden px-4 py-3 font-semibold sm:table-cell">Margin</th>
+                  <th className="px-4 py-3 text-right font-semibold">Stok</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {filteredProducts.map((product) => {
+                  const stock = Number(product.stock);
+                  const costPrice = Number(product.cost_price);
+                  const sellingPrice = Number(product.selling_price);
+                  const margin =
+                    sellingPrice > 0
+                      ? Math.round(((sellingPrice - costPrice) / sellingPrice) * 100)
+                      : 0;
+                  const isLow = stock > 0 && stock <= product.low_stock_threshold;
+                  const isOut = stock <= 0;
+
+                  return (
+                    <tr
+                      key={product.id}
+                      className="transition hover:bg-slate-50/70 dark:hover:bg-slate-800/30"
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={cn(
+                              "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[11px] font-extrabold",
+                              getProductTone(product.name)
+                            )}
+                          >
+                            {getInitials(product.name)}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate font-semibold text-slate-900 dark:text-white">
+                              {product.name}
+                            </p>
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                              {product.sku || "Tanpa SKU"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="hidden px-4 py-3 text-slate-500 dark:text-slate-400 md:table-cell">
+                        {formatRupiah(product.cost_price)}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-teal-700 dark:text-teal-300">
+                        {formatRupiah(product.selling_price)}
+                      </td>
+                      <td className="hidden px-4 py-3 sm:table-cell">
+                        <Badge tone={margin >= 30 ? "emerald" : margin >= 15 ? "amber" : "rose"}>
+                          {margin}%
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Badge
+                          tone={isOut ? "rose" : isLow ? "amber" : "emerald"}
+                          className="justify-end"
+                        >
+                          {isOut ? "Habis" : isLow ? `Sisa ${stock}` : `${stock} unit`}
+                        </Badge>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
 
-      {/* Tabel Produk */}
-      <div className="glass-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 text-gray-500 font-medium">
-                <th className="py-3 px-4">Nama Produk</th>
-                <th className="py-3 px-4">SKU</th>
-                <th className="py-3 px-4">Harga Beli</th>
-                <th className="py-3 px-4">Harga Jual</th>
-                <th className="py-3 px-4">Stok</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {products.map((prod) => (
-                <tr key={prod.id} className="hover:bg-white/50 transition">
-                  <td className="py-3 px-4 font-medium text-gray-800">{prod.name}</td>
-                  <td className="py-3 px-4 text-gray-500">{prod.sku || "-"}</td>
-                  <td className="py-3 px-4 text-gray-600">Rp{Number(prod.cost_price).toLocaleString("id-ID")}</td>
-                  <td className="py-3 px-4 text-[#28665A] font-semibold">Rp{Number(prod.selling_price).toLocaleString("id-ID")}</td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
-                      prod.stock <= prod.low_stock_threshold ? "bg-amber-100 text-amber-800" : "bg-[#28665A]/10 text-[#28665A]"
-                    }`}>
-                      {prod.stock <= prod.low_stock_threshold && <AlertTriangle className="w-3.5 h-3.5" />}
-                      {prod.stock} unit
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <Modal
+        open={showAddModal}
+        onClose={closeAddModal}
+        title="Tambah produk baru"
+        description="Isi informasi produk dengan lengkap. Stok awal akan tercatat otomatis."
+        footer={
+          <>
+            <Button variant="outline" onClick={closeAddModal} disabled={saving}>
+              Batal
+            </Button>
+            <Button type="submit" form="product-form" loading={saving}>
+              Simpan produk
+            </Button>
+          </>
+        }
+        closeOnBackdrop={!saving}
+      >
+        <form id="product-form" onSubmit={handleCreateProduct} className="space-y-4">
+          {formError ? (
+            <ErrorState compact title="Produk belum bisa disimpan" message={formError} />
+          ) : null}
+
+          <div>
+            <label htmlFor="product-name" className={labelClass}>
+              Nama produk
+            </label>
+            <input
+              id="product-name"
+              type="text"
+              required
+              autoFocus
+              value={form.name}
+              onChange={(event) => updateForm("name", event.target.value)}
+              placeholder="Contoh: Kopi Susu Gula Aren"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="product-sku" className={labelClass}>
+              SKU <span className="font-normal normal-case text-slate-400">(opsional)</span>
+            </label>
+            <input
+              id="product-sku"
+              type="text"
+              value={form.sku}
+              onChange={(event) => updateForm("sku", event.target.value)}
+              placeholder="Contoh: KOP-001"
+              className={inputClass}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="product-cost" className={labelClass}>
+                Harga beli
+              </label>
+              <input
+                id="product-cost"
+                type="number"
+                min="0"
+                required
+                value={form.costPrice}
+                onChange={(event) => updateForm("costPrice", event.target.value)}
+                placeholder="0"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="product-price" className={labelClass}>
+                Harga jual
+              </label>
+              <input
+                id="product-price"
+                type="number"
+                min="0"
+                required
+                value={form.sellingPrice}
+                onChange={(event) => updateForm("sellingPrice", event.target.value)}
+                placeholder="0"
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="product-stock" className={labelClass}>
+                Stok awal
+              </label>
+              <input
+                id="product-stock"
+                type="number"
+                min="0"
+                value={form.stock}
+                onChange={(event) => updateForm("stock", event.target.value)}
+                placeholder="0"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="product-threshold" className={labelClass}>
+                Batas stok minimum
+              </label>
+              <input
+                id="product-threshold"
+                type="number"
+                min="0"
+                value={form.lowStockThreshold}
+                onChange={(event) => updateForm("lowStockThreshold", event.target.value)}
+                placeholder="5"
+                className={inputClass}
+              />
+            </div>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

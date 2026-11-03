@@ -3,8 +3,13 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.products.models import Product, InventoryMovement
 from app.products.schemas import ProductCreate, ProductResponse, StockAdjustment
+from app.auth.dependencies import authorize_business_access
 
-router = APIRouter(prefix="/api/v1/businesses/{business_id}/products", tags=["Products"])
+router = APIRouter(
+    prefix="/businesses/{business_id}/products",
+    tags=["Products"],
+    dependencies=[Depends(authorize_business_access)],
+)
 
 @router.post("/", response_model=ProductResponse)
 def create_product(business_id: int, product: ProductCreate, db: Session = Depends(get_db)):

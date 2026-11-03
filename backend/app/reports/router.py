@@ -6,8 +6,13 @@ from app.sales.models import Sale, SaleItem
 from app.expenses.models import Expense
 from app.products.models import Product
 from decimal import Decimal
+from app.auth.dependencies import authorize_business_access
 
-router = APIRouter(prefix="/api/v1/businesses/{business_id}/reports", tags=["Reports"])
+router = APIRouter(
+    prefix="/businesses/{business_id}/reports",
+    tags=["Reports"],
+    dependencies=[Depends(authorize_business_access)],
+)
 
 @router.get("/dashboard")
 def get_dashboard_report(business_id: int, db: Session = Depends(get_db)):

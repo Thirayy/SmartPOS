@@ -7,11 +7,15 @@ class ExpenseCreate(BaseModel):
     amount: Decimal
     date: date
     description: str
-    user_id: int
 
-class ExpenseResponse(ExpenseCreate):
+class ExpenseResponse(BaseModel):
     id: int
     business_id: int
+    category: str
+    amount: Decimal
+    date: date
+    description: str
+    user_id: int
 
     class Config:
         from_attributes = True

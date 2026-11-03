@@ -6,8 +6,13 @@ from app.sales.models import Sale
 from app.expenses.models import Expense
 from app.ai.provider import call_ai_llm
 from decimal import Decimal
+from app.auth.dependencies import authorize_business_access
 
-router = APIRouter(prefix="/api/v1/businesses/{business_id}/ai", tags=["AI Analyst"])
+router = APIRouter(
+    prefix="/businesses/{business_id}/ai",
+    tags=["AI Analyst"],
+    dependencies=[Depends(authorize_business_access)],
+)
 
 @router.post("/analyze")
 def analyze_business(business_id: int, db: Session = Depends(get_db)):
