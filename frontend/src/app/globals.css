@@ -20,7 +20,7 @@ html.font-system body {
 
 /* Dynamic Font Sizes pada HTML Root */
 html.font-size-small {
-  font-size: 13px !important;
+  font-size: 14px !important;
 }
 
 html.font-size-medium {
@@ -28,7 +28,7 @@ html.font-size-medium {
 }
 
 html.font-size-large {
-  font-size: 19px !important;
+  font-size: 18px !important;
 }
 
 :root {
@@ -124,8 +124,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .modal-backdrop,
-  .modal-panel {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

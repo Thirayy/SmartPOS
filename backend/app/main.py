@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from app.core.database import engine, Base
+from app.core.config import settings
 
 # Import semua models agar terdeteksi oleh Base.metadata SQLAlchemy
 from app.auth.models import User, Session
@@ -18,12 +20,12 @@ from app.reports.router import router as reports_router
 from app.ai.router import router as ai_router
 from app.sales.router import router as sales_router
 
-app = FastAPI(title="SmartPOS MVP API", version="1.0.0")
+app = FastAPI(title=f"{settings.PROJECT_NAME} API", version="1.0.0")
 
 # Setup CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,6 +39,10 @@ for router in (auth_router, businesses_router, products_router, expenses_router,
 @app.on_event("startup")
 def startup_event():
     Base.metadata.create_all(bind=engine)
+    with engine.begin() as connection:
+        connection.execute(
+            text("ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image_url TEXT")
+        )
 
 @app.get("/")
 def read_root():

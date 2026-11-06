@@ -19,13 +19,16 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
 
   const requestUrl = new URL(`${endpointPath.replace(/^\/+/, "")}${endpointUrl.search}${endpointUrl.hash}`, `${API_BASE_URL}/`);
   const token = typeof window === "undefined" ? null : window.localStorage.getItem("smartpos_access_token");
+  const headers = new Headers(options.headers);
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
+  if (!isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
   const res = await fetch(requestUrl, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
+    headers,
   });
 
   if (!res.ok) {

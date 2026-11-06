@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException
+import base64
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from jose import jwt
 from app.core.database import get_db
@@ -12,6 +13,13 @@ from passlib.context import CryptContext
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+MAX_PROFILE_IMAGE_SIZE = 2 * 1024 * 1024
+ALLOWED_PROFILE_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
+PROFILE_IMAGE_SIGNATURES = {
+    "image/jpeg": lambda image: image.startswith(b"\xff\xd8\xff"),
+    "image/png": lambda image: image.startswith(b"\x89PNG\r\n\x1a\n"),
+    "image/webp": lambda image: image.startswith(b"RIFF") and image[8:12] == b"WEBP",
+}
 
 
 def create_access_token(user: User) -> str:
@@ -76,6 +84,31 @@ def login(creds: UserLogin, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=UserProfile)
 def get_profile(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.post("/me/avatar", response_model=UserProfile)
+async def upload_profile_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    content_type = file.content_type
+    if content_type is None or content_type not in ALLOWED_PROFILE_IMAGE_TYPES:
+        raise HTTPException(status_code=415, detail="Gunakan gambar JPG, PNG, atau WebP.")
+
+    image_data = await file.read(MAX_PROFILE_IMAGE_SIZE + 1)
+    if len(image_data) > MAX_PROFILE_IMAGE_SIZE:
+        raise HTTPException(status_code=413, detail="Ukuran foto maksimal 2 MB.")
+    if not image_data:
+        raise HTTPException(status_code=400, detail="File foto kosong.")
+    if not PROFILE_IMAGE_SIGNATURES[content_type](image_data):
+        raise HTTPException(status_code=400, detail="File tidak sesuai dengan format gambar yang dipilih.")
+
+    encoded_image = base64.b64encode(image_data).decode("ascii")
+    current_user.profile_image_url = f"data:{content_type};base64,{encoded_image}"
+    db.commit()
+    db.refresh(current_user)
     return current_user
 
 

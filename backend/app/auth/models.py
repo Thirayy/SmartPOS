@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.core.database import Base
@@ -11,6 +11,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     full_name = Column(String, nullable=False)
     role = Column(String, default="OWNER") # OWNER or CASHIER
+    profile_image_url = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")

@@ -25,6 +25,7 @@ class UserProfile(BaseModel):
     email: EmailStr
     full_name: str
     role: str
+    profile_image_url: str | None = None
 
     class Config:
         from_attributes = True

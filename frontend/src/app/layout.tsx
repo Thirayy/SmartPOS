@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Sistem POS dan dashboard operasional untuk UMKM modern.",
 };
 
-const themeScript = `(function(){try{var saved=localStorage.getItem('smartpos-theme');var dark=saved==='dark'||(!saved&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',dark);document.documentElement.style.colorScheme=dark?'dark':'light';}catch(e){}})();`;
+const themeScript = `(function(){try{var root=document.documentElement;var saved=localStorage.getItem('smartpos-theme');var dark=saved==='dark'||(!saved&&window.matchMedia('(prefers-color-scheme: dark)').matches);root.classList.toggle('dark',dark);root.style.colorScheme=dark?'dark':'light';var font=localStorage.getItem('app_font_family');if(['dn-rounded','inter','system'].indexOf(font)!==-1)root.classList.add('font-'+font);var size=localStorage.getItem('app_font_size');if(['small','medium','large'].indexOf(size)!==-1)root.classList.add('font-size-'+size);}catch(e){}})();`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
