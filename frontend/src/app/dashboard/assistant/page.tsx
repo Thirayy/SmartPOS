@@ -1,18 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, Check, Copy, Loader2, Sparkles, Wand2 } from "lucide-react";
+import {
+  Activity,
+  Bot,
+  Check,
+  CheckCircle2,
+  Copy,
+  Lightbulb,
+  Loader2,
+  ShieldCheck,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 import { fetchApi, getBusinessId } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/ui/states";
-import { cn } from "@/lib/utils";
+
+// Interface baru yang sesuai dengan skema Backend Pydantic
+interface ObservationItem {
+  category: string;
+  fact: string;
+}
+
+interface HypothesisItem {
+  issue: string;
+  root_cause: string;
+}
+
+interface HcbGuidance {
+  principle: string;
+  reflection: string;
+}
+
+interface ActionRecommendation {
+  title: string;
+  action_plan: string;
+  expected_impact: string;
+}
 
 interface AnalysisResult {
-  metrics_summary: string;
-  insights: string;
+  health_score: number;
+  summary: string;
+  observations: ObservationItem[];
+  hypotheses: HypothesisItem[];
+  hcb_guidance?: HcbGuidance[];
+  recommendations: ActionRecommendation[];
 }
 
 const getErrorMessage = (error: unknown) =>
@@ -22,18 +58,25 @@ function AnalysisSkeleton() {
   return (
     <div className="space-y-4">
       <Card className="p-5">
-        <Skeleton className="h-3 w-36" />
-        <Skeleton className="mt-3 h-16 w-full rounded-xl" />
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="mt-3 h-12 w-full rounded-xl" />
       </Card>
-      <Card className="p-5">
-        <Skeleton className="h-5 w-48" />
-        <div className="mt-4 space-y-2.5">
-          <Skeleton className="h-3 w-full" />
-          <Skeleton className="h-3 w-11/12" />
-          <Skeleton className="h-3 w-4/5" />
-          <Skeleton className="h-3 w-10/12" />
-        </div>
-      </Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="p-5">
+          <Skeleton className="h-5 w-36" />
+          <div className="mt-4 space-y-2.5">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+          </div>
+        </Card>
+        <Card className="p-5">
+          <Skeleton className="h-5 w-36" />
+          <div className="mt-4 space-y-2.5">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -68,8 +111,22 @@ export default function AssistantPage() {
   const copyInsights = async () => {
     if (!result) return;
 
+    const formattedText = `
+*SKOR KESEHATAN BISNIS*: ${result.health_score}/100
+*RINGKASAN*: ${result.summary}
+
+*OBSERVASI*:
+${result.observations.map((o) => `- [${o.category}] ${o.fact}`).join("\n")}
+
+*ISU & AKAR MASALAH*:
+${result.hypotheses.map((h) => `- ${h.issue}: ${h.root_cause}`).join("\n")}
+
+*REKOMENDASI AKSI*:
+${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r.expected_impact})`).join("\n")}
+    `.trim();
+
     try {
-      await navigator.clipboard.writeText(result.insights);
+      await navigator.clipboard.writeText(formattedText);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -89,7 +146,7 @@ export default function AssistantPage() {
             Asisten AI
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Dapatkan analisis dan rekomendasi bisnis dari data penjualan Anda.
+            Dapatkan analisis performa bisnis dan panduan etika dagang (HCB) dari data Anda.
           </p>
         </div>
 
@@ -110,11 +167,11 @@ export default function AssistantPage() {
             </h2>
             <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500 dark:text-slate-400">
               AI akan membaca omzet, laba kotor, dan beban operasional Anda, lalu memberi
-              observasi serta rekomendasi yang bisa langsung dijalankan.
+              observasi kuantitatif, perspektif etika dagang HCB, serta rekomendasi aksi.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              {["Observasi metrik", "Deteksi masalah", "Rekomendasi aksi"].map((item) => (
+              {["Observasi metrik", "Perspektif HCB", "Rekomendasi aksi"].map((item) => (
                 <Badge key={item} tone="slate">
                   <Check className="h-3 w-3" />
                   {item}
@@ -146,8 +203,9 @@ export default function AssistantPage() {
               </p>
               <ul className="mt-4 space-y-3 text-sm">
                 {[
-                  "Ringkasan performa keuangan",
-                  "Temuan yang perlu diperhatikan",
+                  "Skor kesehatan bisnis & ringkasan",
+                  "Observasi data & akar masalah",
+                  "Panduan etika muamalah (HCB)",
                   "Langkah perbaikan prioritas",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-teal-50">
@@ -177,54 +235,130 @@ export default function AssistantPage() {
       {loading ? <AnalysisSkeleton /> : null}
 
       {!loading && !error && result ? (
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* Executive Summary & Score */}
           <Card className="p-5">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300">
-                <Sparkles className="h-4 w-4" />
-              </span>
-              <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Ringkasan metrik
-                </h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Data yang dibaca oleh asisten AI
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Badge tone="teal">Skor Kesehatan</Badge>
+                  <span className="text-xs text-slate-500">Berdasarkan data keuangan agregat</span>
+                </div>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  {result.summary}
                 </p>
               </div>
-            </div>
-            <p className="mt-3 rounded-xl border border-slate-100 bg-slate-50/70 p-4 text-sm leading-6 text-slate-700 dark:border-slate-800 dark:bg-slate-800/30 dark:text-slate-200">
-              {result.metrics_summary}
-            </p>
-          </Card>
 
-          <Card className="p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
-                  <Bot className="h-4 w-4" />
-                </span>
+              <div className="flex items-center gap-3 rounded-2xl bg-teal-50/80 p-3 px-4 dark:bg-teal-500/10">
+                <Activity className="h-7 w-7 text-teal-600 dark:text-teal-400" />
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-                    Hasil analisis & rekomendasi
-                  </h2>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Observasi, hipotesis, dan langkah lanjutan
-                  </p>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Health Score
+                  </span>
+                  <div className="text-xl font-black text-teal-700 dark:text-teal-300">
+                    {result.health_score} / 100
+                  </div>
                 </div>
               </div>
+            </div>
+          </Card>
 
+          {/* Observations & Hypotheses Grid */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="p-5 space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
+                <Lightbulb className="h-4 w-4 text-amber-500" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Observasi & Akar Masalah
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {result.observations.map((obs, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-slate-100 bg-slate-50/60 p-3 text-xs dark:border-slate-800 dark:bg-slate-800/40"
+                  >
+                    <span className="font-bold text-teal-600 dark:text-teal-400 block mb-0.5">
+                      [{obs.category}]
+                    </span>
+                    <p className="text-slate-700 dark:text-slate-300">{obs.fact}</p>
+                  </div>
+                ))}
+                {result.hypotheses.map((hyp, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-amber-200/50 bg-amber-50/50 p-3 text-xs dark:border-amber-900/40 dark:bg-amber-950/20"
+                  >
+                    <span className="font-bold text-amber-800 dark:text-amber-400 block mb-0.5">
+                      Isu: {hyp.issue}
+                    </span>
+                    <p className="text-amber-900 dark:text-amber-300">
+                      Akar Penyebab: {hyp.root_cause}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* HCB Guidance */}
+            <Card className="p-5 space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
+                <ShieldCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Perspektif Etika Dagang (HCB)
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {result.hcb_guidance?.map((hcb, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-teal-100 bg-teal-50/40 p-3 text-xs dark:border-teal-900/30 dark:bg-teal-950/20"
+                  >
+                    <span className="font-bold text-teal-700 dark:text-teal-300 block mb-1">
+                      Prinsip: {hcb.principle}
+                    </span>
+                    <p className="text-slate-600 italic dark:text-slate-400">"{hcb.reflection}"</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          {/* Action Recommendations */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Rekomendasi Aksi Prioritas
+                </h3>
+              </div>
               <Button variant="outline" size="sm" onClick={() => void copyInsights()}>
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? "Tersalin" : "Salin hasil"}
               </Button>
             </div>
 
-            <div
-              className={cn(
-                "mt-4 whitespace-pre-line rounded-xl border border-slate-100 bg-slate-50/70 p-4 text-sm leading-7 text-slate-700 dark:border-slate-800 dark:bg-slate-800/30 dark:text-slate-200"
-              )}
-            >
-              {result.insights}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {result.recommendations.map((rec, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-2 dark:border-slate-800 dark:bg-slate-900"
+                >
+                  <h4 className="font-bold text-xs text-teal-700 dark:text-teal-400">
+                    {rec.title}
+                  </h4>
+                  <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
+                    {rec.action_plan}
+                  </p>
+                  <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] dark:border-slate-800">
+                    <span className="text-slate-400">Ekspektasi Dampak:</span>
+                    <span className="font-semibold text-amber-600 dark:text-amber-400">
+                      {rec.expected_impact}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
         </div>
@@ -239,8 +373,8 @@ export default function AssistantPage() {
             Belum ada analisis
           </p>
           <p className="mt-1 max-w-sm text-xs leading-5 text-slate-500 dark:text-slate-400">
-            Klik tombol mulai analisis untuk melihat ringkasan dan rekomendasi AI untuk usaha
-            Anda.
+            Klik tombol mulai analisis untuk melihat ringkasan, analisis etika HCB, dan rekomendasi
+            AI untuk usaha Anda.
           </p>
         </Card>
       ) : null}
