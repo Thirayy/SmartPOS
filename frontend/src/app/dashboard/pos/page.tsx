@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Banknote,
@@ -71,6 +71,11 @@ const stockFilters: Array<{ key: StockFilter; label: string }> = [
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Terjadi kesalahan saat memproses permintaan.";
 
+const createIdempotencyKey = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `checkout-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
 function ProductGridSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -111,6 +116,7 @@ export default function POSPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [lastSale, setLastSale] = useState<SaleResult | null>(null);
+  const checkoutKeyRef = useRef<string | null>(null);
   const today = useTodayLabel();
 
   const loadProducts = useCallback(
@@ -200,7 +206,7 @@ export default function POSPage() {
     (sum, item) => sum + Number(item.product.selling_price) * item.quantity,
     0
   );
-  const discount = Math.max(0, Number(discountInput) || 0);
+  const discount = Math.min(subtotal, Math.max(0, Number(discountInput) || 0));
   const total = Math.max(0, subtotal - discount);
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const received = Number(amountReceived) || 0;
@@ -292,6 +298,9 @@ export default function POSPage() {
 
     setCheckoutLoading(true);
 
+    const idempotencyKey = checkoutKeyRef.current ?? createIdempotencyKey();
+    checkoutKeyRef.current = idempotencyKey;
+
     try {
       if (businessId === null) {
         throw new Error("Sesi login tidak ditemukan. Silakan masuk kembali.");
@@ -302,6 +311,7 @@ export default function POSPage() {
           payment_method: paymentMethod,
           amount_received: receivedValue,
           discount,
+          idempotency_key: idempotencyKey,
           items: cart.map((item) => ({
             product_id: item.product.id,
             quantity: item.quantity,
@@ -309,6 +319,7 @@ export default function POSPage() {
         }),
       });
 
+      checkoutKeyRef.current = null;
       setLastSale(sale);
       setCart([]);
       setDiscountInput("0");
@@ -322,6 +333,7 @@ export default function POSPage() {
   };
 
   const finishTransaction = () => {
+    checkoutKeyRef.current = null;
     setPaymentOpen(false);
     setLastSale(null);
     setCheckoutError("");
@@ -369,7 +381,7 @@ export default function POSPage() {
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="emerald">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            Shift aktif
+            POS siap
           </Badge>
           <Badge tone="slate">
             <CalendarDays className="h-3 w-3" />
@@ -799,8 +811,9 @@ export default function POSPage() {
               {formatRupiah(lastSale.total_amount)}
             </p>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Pembayaran diterima dengan metode{" "}
-              {lastSale.payment_method === "CASH" ? "tunai" : "transfer"}.
+              {lastSale.payment_method === "CASH"
+                ? "Pembayaran tunai diterima."
+                : "Transaksi dicatat sebagai transfer. Verifikasi dana dilakukan manual, belum melalui penyedia pembayaran."}
             </p>
 
             <div className="mt-5 space-y-2.5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-left text-xs dark:border-slate-700 dark:bg-slate-950/40">
@@ -999,7 +1012,8 @@ export default function POSPage() {
                       Nominal transfer {formatRupiah(total)}
                     </p>
                     <p className="mt-1 text-xs leading-5 text-sky-700/80 dark:text-sky-200/80">
-                      Pastikan dana sudah diterima di rekening usaha sebelum konfirmasi pembayaran.
+                      Pastikan dana sudah diterima di rekening usaha sebelum konfirmasi. Aplikasi
+                      mencatat metode pembayaran, bukan status verifikasi dari bank.
                     </p>
                   </div>
                 </div>
@@ -1012,7 +1026,7 @@ export default function POSPage() {
 
             <p className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
               <Store className="h-3 w-3" />
-              Transaksi disimpan otomatis ke laporan usaha.
+              Transaksi disimpan ke laporan usaha. Transfer diverifikasi manual.
             </p>
           </div>
         )}

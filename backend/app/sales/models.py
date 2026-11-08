@@ -17,10 +17,19 @@ class Sale(Base):
     change_amount = Column(Numeric(12, 2), nullable=False)
     status = Column(String, default="COMPLETED") # COMPLETED, CANCELLED
     cashier_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    cancelled_at = Column(DateTime, nullable=True)
+    cancelled_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    cancel_reason = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     business = relationship("Business", back_populates="sales")
+    cashier = relationship("User", foreign_keys=[cashier_user_id])
+    cancelled_by = relationship("User", foreign_keys=[cancelled_by_user_id])
     items = relationship("SaleItem", back_populates="sale", cascade="all, delete-orphan")
+
+    @property
+    def cashier_name(self) -> str | None:
+        return self.cashier.full_name if self.cashier else None
 
 class SaleItem(Base):
     __tablename__ = "sale_items"

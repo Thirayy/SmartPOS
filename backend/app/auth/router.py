@@ -8,11 +8,11 @@ from app.auth.models import User
 from app.businesses.models import Business
 from app.auth.schemas import PasswordUpdate, TokenResponse, UserCreate, UserLogin, UserProfile, UserProfileUpdate
 from app.auth.dependencies import get_current_user
+from app.auth.passwords import pwd_context
 from app.core.config import settings
-from passlib.context import CryptContext
+from app.members.models import ROLE_OWNER, BusinessMember
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 MAX_PROFILE_IMAGE_SIZE = 2 * 1024 * 1024
 ALLOWED_PROFILE_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 PROFILE_IMAGE_SIGNATURES = {
@@ -42,7 +42,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         email=user_data.email,
         password_hash=hashed_password,
         full_name=user_data.full_name,
-        role=user_data.role
+        role=ROLE_OWNER,
     )
     db.add(new_user)
     db.flush()
@@ -53,6 +53,15 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         location="Belum diatur",
     )
     db.add(business)
+    db.flush()
+    db.add(
+        BusinessMember(
+            business_id=business.id,
+            user_id=new_user.id,
+            role=ROLE_OWNER,
+            is_active=True,
+        )
+    )
     db.commit()
     db.refresh(new_user)
     db.refresh(business)
@@ -72,13 +81,32 @@ def login(creds: UserLogin, db: Session = Depends(get_db)):
     if not user or not pwd_context.verify(creds.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Email atau password salah")
         
+    membership = (
+        db.query(BusinessMember)
+        .filter(
+            BusinessMember.user_id == user.id,
+            BusinessMember.is_active.is_(True),
+        )
+        .order_by(BusinessMember.id)
+        .first()
+    )
+    if membership is not None:
+        business_id = membership.business_id
+        role = membership.role
+    elif user.businesses:
+        business_id = user.businesses[0].id
+        role = ROLE_OWNER
+    else:
+        business_id = None
+        role = user.role
+
     return {
         "access_token": create_access_token(user),
         "token_type": "bearer",
-        "role": user.role,
+        "role": role,
         "full_name": user.full_name,
         "user_id": user.id,
-        "business_id": user.businesses[0].id if user.businesses else None,
+        "business_id": business_id,
     }
 
 

@@ -1,11 +1,11 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
+
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str
-    full_name: str
-    business_name: str
-    role: str = "OWNER"
+    password: str = Field(min_length=8, max_length=128)
+    full_name: str = Field(min_length=1, max_length=120)
+    business_name: str = Field(min_length=1, max_length=120)
 
 class UserLogin(BaseModel):
     email: EmailStr

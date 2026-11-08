@@ -14,6 +14,15 @@ class Business(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     owner = relationship("User", back_populates="businesses")
+    members = relationship(
+        "BusinessMember", back_populates="business", cascade="all, delete-orphan"
+    )
     products = relationship("Product", back_populates="business", cascade="all, delete-orphan")
     sales = relationship("Sale", back_populates="business", cascade="all, delete-orphan")
     expenses = relationship("Expense", back_populates="business", cascade="all, delete-orphan")
+    audit_logs = relationship(
+        "AuditLog", back_populates="business", cascade="all, delete-orphan"
+    )
+    shifts = relationship(
+        "Shift", back_populates="business", cascade="all, delete-orphan"
+    )

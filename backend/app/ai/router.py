@@ -7,9 +7,17 @@ from app.expenses.models import Expense
 from app.products.models import Product
 from app.ai.provider import run_business_analysis
 from app.ai.schemas import BusinessAnalysisResponse
+from app.auth.dependencies import authorize_business_access, require_roles
 from decimal import Decimal
 
-router = APIRouter(prefix="/businesses/{business_id}/ai", tags=["AI Analyst"])
+router = APIRouter(
+    prefix="/businesses/{business_id}/ai",
+    tags=["AI Analyst"],
+    dependencies=[
+        Depends(authorize_business_access),
+        Depends(require_roles("OWNER", "MANAGER")),
+    ],
+)
 
 @router.post("/analyze", response_model=BusinessAnalysisResponse)
 def analyze_business(business_id: int, db: Session = Depends(get_db)):

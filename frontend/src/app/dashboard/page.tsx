@@ -10,10 +10,11 @@ import {
   ShoppingCart,
   TrendingUp,
   Wallet,
+  CalendarDays,
 } from "lucide-react";
 import { fetchApi, getBusinessId } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
-import { buttonStyles } from "@/components/ui/button";
+import { Button, buttonStyles } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/states";
@@ -31,6 +32,22 @@ interface DashboardData {
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Gagal memuat data dashboard.";
+
+const inputClass =
+  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:focus:border-teal-500 dark:focus:bg-slate-950";
+
+const labelClass =
+  "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
+
+function formatPeriodDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
 
 function DashboardSkeleton() {
   return (
@@ -64,27 +81,48 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [appliedStartDate, setAppliedStartDate] = useState("");
+  const [appliedEndDate, setAppliedEndDate] = useState("");
+  const [periodError, setPeriodError] = useState("");
+
+  const fetchDashboard = useCallback(
+    async (signal?: AbortSignal): Promise<DashboardData> => {
+      if (businessId === null) {
+        throw new Error("Sesi login tidak ditemukan. Silakan masuk kembali.");
+      }
+
+      const params = new URLSearchParams();
+      if (appliedStartDate) params.set("start_date", appliedStartDate);
+      if (appliedEndDate) params.set("end_date", appliedEndDate);
+      const query = params.toString();
+
+      return fetchApi(
+        `/businesses/${businessId}/reports/dashboard${query ? `?${query}` : ""}`,
+        { signal }
+      );
+    },
+    [businessId, appliedStartDate, appliedEndDate]
+  );
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
     setError("");
 
     try {
-      if (businessId === null) {
-        setError("Sesi login tidak ditemukan. Silakan masuk kembali.");
-        return;
-      }
-      const res = await fetchApi(`/businesses/${businessId}/reports/dashboard`);
+      const res = await fetchDashboard();
       setData(res);
     } catch (loadError) {
       setError(getErrorMessage(loadError));
     } finally {
       setLoading(false);
     }
-  }, [businessId]);
+  }, [fetchDashboard]);
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
 
     void (async () => {
       if (businessId === null) {
@@ -92,12 +130,16 @@ export default function DashboardPage() {
         setLoading(false);
         return;
       }
+
       try {
-        const res = await fetchApi(`/businesses/${businessId}/reports/dashboard`);
-        if (cancelled) return;
-        setData(res);
+        const res = await fetchDashboard(controller.signal);
+        if (!cancelled) setData(res);
       } catch (loadError) {
-        if (!cancelled) setError(getErrorMessage(loadError));
+        if (cancelled) return;
+        if (loadError instanceof DOMException && loadError.name === "AbortError") {
+          return;
+        }
+        setError(getErrorMessage(loadError));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -105,8 +147,31 @@ export default function DashboardPage() {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [businessId]);
+  }, [businessId, fetchDashboard]);
+
+  const applyPeriod = () => {
+    if (startDate && endDate && startDate > endDate) {
+      setPeriodError("Tanggal mulai tidak boleh setelah tanggal akhir.");
+      return;
+    }
+    setPeriodError("");
+    if (startDate === appliedStartDate && endDate === appliedEndDate) return;
+    setLoading(true);
+    setAppliedStartDate(startDate);
+    setAppliedEndDate(endDate);
+  };
+
+  const resetPeriod = () => {
+    setStartDate("");
+    setEndDate("");
+    setPeriodError("");
+    if (!appliedStartDate && !appliedEndDate) return;
+    setLoading(true);
+    setAppliedStartDate("");
+    setAppliedEndDate("");
+  };
 
   const metrics = [
     {
@@ -145,6 +210,12 @@ export default function DashboardPage() {
 
   const bestSellers = data?.best_sellers ?? [];
   const highestSold = bestSellers.reduce((max, item) => Math.max(max, item.total_sold), 0);
+  const hasPeriod = Boolean(appliedStartDate || appliedEndDate);
+  const periodLabel = hasPeriod
+    ? `${appliedStartDate ? formatPeriodDate(appliedStartDate) : "Awal"} – ${
+        appliedEndDate ? formatPeriodDate(appliedEndDate) : "Sekarang"
+      }`
+    : "Semua data";
 
   return (
     <div className="space-y-6">
@@ -160,12 +231,15 @@ export default function DashboardPage() {
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Pantau performa penjualan dan kesehatan keuangan usaha Anda.
           </p>
+          <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+            Angka di bawah mengikuti periode yang dipilih. Tanpa filter berarti seluruh transaksi.
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="emerald">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            Data terbaru
+          <Badge tone="slate">
+            <CalendarDays className="h-3 w-3" />
+            {periodLabel}
           </Badge>
           <Link href="/dashboard/pos" className={buttonStyles({ size: "sm" })}>
             <ShoppingCart className="h-3.5 w-3.5" />
@@ -173,6 +247,61 @@ export default function DashboardPage() {
           </Link>
         </div>
       </div>
+
+      <Card className="p-4 sm:p-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div>
+              <label htmlFor="report-start-date" className={labelClass}>
+                Dari tanggal
+              </label>
+              <input
+                id="report-start-date"
+                type="date"
+                value={startDate}
+                onChange={(event) => {
+                  setStartDate(event.target.value);
+                  setPeriodError("");
+                }}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="report-end-date" className={labelClass}>
+                Sampai tanggal
+              </label>
+              <input
+                id="report-end-date"
+                type="date"
+                value={endDate}
+                onChange={(event) => {
+                  setEndDate(event.target.value);
+                  setPeriodError("");
+                }}
+                className={inputClass}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" onClick={applyPeriod} size="md">
+                Terapkan
+              </Button>
+              <Button type="button" onClick={resetPeriod} size="md" variant="outline">
+                Reset
+              </Button>
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
+            {hasPeriod
+              ? `Menampilkan data ${periodLabel.toLowerCase()}.`
+              : "Menampilkan seluruh data tanpa batas periode."}
+          </p>
+        </div>
+        {periodError ? (
+          <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-400">
+            {periodError}
+          </p>
+        ) : null}
+      </Card>
 
       {loading ? <DashboardSkeleton /> : null}
 
@@ -220,13 +349,14 @@ export default function DashboardPage() {
                 </span>
                 <div>
                   <p className="text-xs font-medium text-teal-50">
-                    Hasil operasional bersih
+                    Hasil operasional (estimasi)
                   </p>
                   <p className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
                     {formatRupiah(data.estimated_operating_result)}
                   </p>
                   <p className="mt-1 text-[11px] text-teal-50/80">
-                    Laba kotor dikurangi total pengeluaran operasional
+                    Laba kotor dikurangi pengeluaran tercatat. Belum termasuk pajak,
+                    penyusutan, dan biaya lain.
                   </p>
                 </div>
               </div>

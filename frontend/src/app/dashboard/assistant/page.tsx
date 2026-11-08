@@ -317,7 +317,7 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
                     <span className="font-bold text-teal-700 dark:text-teal-300 block mb-1">
                       Prinsip: {hcb.principle}
                     </span>
-                    <p className="text-slate-600 italic dark:text-slate-400">"{hcb.reflection}"</p>
+                    <p className="text-slate-600 italic dark:text-slate-400">&ldquo;{hcb.reflection}&rdquo;</p>
                   </div>
                 ))}
               </div>

@@ -14,6 +14,8 @@ export default function SalesHistoryPage() {
   const fetchSalesHistory = useCallback(async () => {
     setLoadingHistory(true);
     setHistoryError("");
+    setSalesHistory([]);
+    setSelectedSale(null);
 
     try {
       if (businessId === null) {
@@ -33,10 +35,37 @@ export default function SalesHistoryPage() {
   }, [businessId]);
 
   useEffect(() => {
-    setSalesHistory([]);
-    setSelectedSale(null);
-    void fetchSalesHistory();
-  }, [fetchSalesHistory]);
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        if (businessId === null) {
+          throw new Error("Sesi login tidak ditemukan. Silakan masuk kembali.");
+        }
+
+        const data = await fetchApi(
+          `/businesses/${businessId}/sales`
+        ) as SaleResponse[];
+        if (cancelled) return;
+
+        setSalesHistory(data);
+        setSelectedSale(data[0] ?? null);
+      } catch (error) {
+        if (cancelled) return;
+        setHistoryError(
+          error instanceof Error ? error.message : "Gagal memuat histori transaksi."
+        );
+        setSalesHistory([]);
+        setSelectedSale(null);
+      } finally {
+        if (!cancelled) setLoadingHistory(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [businessId]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">

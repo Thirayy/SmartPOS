@@ -24,9 +24,9 @@ const featureCards = [
     tone: "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300",
   },
   {
-    title: "Laporan otomatis",
+    title: "Laporan ringkas",
     description:
-      "Omzet, laba kotor, dan hasil operasional tersaji rapi tanpa perlu menghitung manual.",
+      "Omzet, laba kotor, dan estimasi hasil operasional tersaji rapi tanpa menghitung manual.",
     icon: BarChart3,
     tone: "bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300",
   },
@@ -40,16 +40,16 @@ const featureCards = [
   {
     title: "Biaya tercatat",
     description:
-      "Catat pengeluaran operasional agar laba bersih usaha selalu terukur dan akurat.",
+      "Catat pengeluaran operasional agar estimasi hasil operasional usaha lebih terukur.",
     icon: Wallet,
     tone: "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300",
   },
 ];
 
 const highlights = [
-  "Tanpa instalasi rumit",
-  "Riwayat transaksi otomatis",
-  "Ringan di laptop & tablet",
+  "Berbasis web, tanpa instalasi di perangkat",
+  "Riwayat transaksi tersimpan",
+  "Dirancang untuk laptop & tablet",
 ];
 
 export default function Home() {
@@ -158,13 +158,12 @@ export default function Home() {
                         Toko Sinar Jaya
                       </p>
                       <p className="text-[10px] text-slate-400 dark:text-slate-500">
-                        Shift pagi · Kasir
+                        Contoh tampilan kasir
                       </p>
                     </div>
                   </div>
-                  <Badge tone="emerald">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Online
+                  <Badge tone="amber">
+                    Ilustrasi
                   </Badge>
                 </div>
 
@@ -202,7 +201,7 @@ export default function Home() {
                     </div>
                     <div className="mt-4 flex items-center justify-center gap-1.5 rounded-lg bg-white/15 py-2 text-[10px] font-bold ring-1 ring-inset ring-white/20">
                       <CheckCircle2 className="h-3 w-3" />
-                      Pembayaran berhasil
+                      Pembayaran tunai diterima
                     </div>
                   </div>
                 </div>

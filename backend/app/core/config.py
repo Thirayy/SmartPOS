@@ -1,4 +1,5 @@
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import Field, field_validator
 from pydantic import ValidationError
@@ -21,6 +22,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    APP_TIMEZONE: str = "Asia/Jakarta"
     AI_API_KEY: str | None = None
     AI_BASE_URL: str = "https://openrouter.ai/api/v1/chat/completions"
     AI_MODEL: str = "deepseek/deepseek-chat"
@@ -30,6 +32,15 @@ class Settings(BaseSettings):
     def require_postgresql(cls, value: str) -> str:
         if make_url(value).get_backend_name() != "postgresql":
             raise ValueError("DATABASE_URL harus menggunakan PostgreSQL")
+        return value
+
+    @field_validator("APP_TIMEZONE")
+    @classmethod
+    def validate_timezone(cls, value: str) -> str:
+        try:
+            ZoneInfo(value)
+        except (ZoneInfoNotFoundError, ValueError) as error:
+            raise ValueError(f"APP_TIMEZONE tidak valid: {value}") from error
         return value
 
     @field_validator("AI_API_KEY")
