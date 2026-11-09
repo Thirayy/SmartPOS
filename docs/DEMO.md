@@ -28,11 +28,12 @@ Akun demo:
 
 | Peran | Email | Password |
 | --- | --- | --- |
-| Owner (satu-satunya akun yang didukung saat ini) | `owner@demo.smartpos.id` | `DemoSmartPOS123!` |
+| Owner | `owner@demo.smartpos.id` | `DemoSmartPOS123!` |
 
-> Catatan: akun kasir/manajer terpisah **belum didukung**. Kolom `role` ada di
-> database, tetapi belum ada alur undang karyawan atau pembatasan modul.
-> Gunakan akun owner untuk demo POS dan jangan mengklaim dukungan multi-peran.
+> Akun manajer/kasir dapat dibuat dari halaman **Anggota** saat demo (owner
+> mengisi email, nama, sandi, dan peran). Kasir hanya melihat POS, riwayat,
+> shift, dan setelan pribadi; dashboard/laporan/pengeluaran/audit dibatasi
+> untuk owner/manajer.
 
 ## 2. Alur demo (sekitar 5 menit)
 
@@ -51,7 +52,18 @@ Yang dijelaskan:
 - "Hasil operasional" adalah estimasi laba kotor dikurangi pengeluaran tercatat,
   bukan laba bersih akuntansi.
 
-### Langkah 2 — Buka POS dan periksa stok awal
+### Langkah 2 — Buka shift kasir
+
+1. Buka **Shift**.
+2. Klik **Buka shift**, isi kas awal `100000`, lalu simpan.
+3. Badge di halaman **Kasir** berubah menjadi **Shift aktif**.
+
+Yang dijelaskan:
+
+- Saat tutup shift, aplikasi membandingkan kas aktual dengan perkiraan
+  (kas awal + penjualan tunai − retur tunai) dan menampilkan selisih.
+
+### Langkah 3 — Buka POS dan periksa stok awal
 
 1. Buka **Kasir**.
 2. Cari "Kopi" atau gunakan filter stok.
@@ -61,7 +73,7 @@ Yang dijelaskan:
    - Keripik Singkong: **6** (stok menipis)
    - Nasi Goreng Spesial: **0** (habis, untuk demo kegagalan)
 
-### Langkah 3 — Transaksi sukses
+### Langkah 4 — Transaksi sukses
 
 1. Tambahkan **Kopi Susu Gula Aren ×5**.
 2. Tambahkan **Roti Bakar Cokelat ×2**.
@@ -85,31 +97,34 @@ Yang dijelaskan:
 - Pembayaran **transfer hanya dicatat metodenya**, bukan diverifikasi oleh bank
   atau penyedia pembayaran.
 
-### Langkah 4 — Bukti transaksi
+### Langkah 5 — Bukti transaksi
 
 1. Buka **Transaksi**.
 2. Pilih transaksi terbaru.
-3. Tunjukkan nomor transaksi, waktu, item, diskon, total, metode, uang diterima,
-   dan kembalian.
-4. Transaksi bisa dibuka kembali dari daftar.
+3. Tunjukkan nomor transaksi, waktu, kasir, item, diskon, total, metode, uang
+   diterima, dan kembalian.
+4. Tunjukkan filter tanggal/metode/status, lalu buka kembali detail dari daftar.
+5. Dengan akun owner/manajer, tunjukkan tombol **Batalkan** dan **Retur**.
+   Keduanya meminta alasan, mengubah status menjadi `CANCELLED`, dan
+   mengembalikan stok. Setelah itu transaksi tidak lagi dihitung di laporan.
 
-### Langkah 5 — Stok berkurang
+### Langkah 6 — Stok berkurang
 
 Buka kembali **Kasir** atau **Produk**, lalu tunjukkan:
 
 - Kopi Susu Gula Aren: **35**
 - Roti Bakar Cokelat: **23**
 
-### Langkah 6 — Catat pengeluaran
+### Langkah 7 — Catat pengeluaran
 
 1. Buka **Pengeluaran**.
 2. Tambahkan pengeluaran hari ini:
    - Kategori: `SUPPLIES`
    - Jumlah: `5.000`
    - Deskripsi: `Gas dan kebersihan (demo)`
-3. Simpan.
+3. Simpan. Tunjukkan juga tombol edit/hapus dan filter tanggal di halaman yang sama.
 
-### Langkah 7 — Jelaskan perubahan laporan
+### Langkah 8 — Jelaskan perubahan laporan
 
 Buka **Dashboard**. Angka yang diharapkan:
 
@@ -130,7 +145,7 @@ Jelaskan bahwa:
 - Filter **Dari/Sampai** bisa dipakai untuk membatasi laporan; preset periode
   dan ekspor laporan belum ada.
 
-### Langkah 8 — Demonstrasi kegagalan stok
+### Langkah 9 — Demonstrasi kegagalan stok
 
 1. Buka **Kasir**.
 2. Tambahkan **Keripik Singkong ×7** (stok hanya 6), lalu coba bayar.
@@ -156,6 +171,14 @@ curl -s -X POST "http://localhost:8000/api/v1/businesses/$BUSINESS_ID/sales/chec
 
 Respons yang diharapkan: HTTP `400` dengan pesan stok tidak mencukupi, dan stok
 tidak berubah.
+
+### Langkah 10 — Anggota dan audit
+
+1. Buka **Anggota** sebagai owner. Buat akun kasir demo, lalu login di jendela
+   privat untuk menunjukkan navigasi yang lebih ringkas.
+2. Buka **Audit** sebagai owner/manajer, filter berdasarkan entitas
+   `PRODUCT`/`SALE`/`EXPENSE`, dan perluas entri untuk melihat nilai
+   sebelum/sesudah.
 
 ## 3. Demonstrasi idempotensi checkout (opsional)
 
@@ -190,7 +213,8 @@ curl -s -X POST "http://localhost:8000/api/v1/businesses/$BUSINESS_ID/sales/chec
 - Jangan sebut pembayaran QRIS/transfer sudah terintegrasi atau terverifikasi.
 - Jangan sebut laporan punya preset periode, ekspor, atau perbandingan periode.
   Filter rentang tanggal dasar di dashboard boleh disebut.
-- Jangan sebut ada shift, rekonsiliasi kas, retur, atau pembatalan.
-- Jangan sebut ada akun kasir/manajer dengan hak akses terpisah.
+- Jangan sebut retur/refund **sebagian** atau refund terintegrasi bank/QRIS;
+  batal/retur saat ini penuh dan mengembalikan stok.
+- Jangan sebut shift otomatis terhubung ke mesin kasir fisik atau laci uang.
 - Jangan sebut ada mode offline, printer struk, barcode scanner, atau multi-cabang.
 - Jangan menyebut AI sebagai laporan akuntansi resmi.

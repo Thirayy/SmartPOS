@@ -15,7 +15,7 @@
      pengguna dapat mengganti sandi setelah login.
    * Dialog konfirmasi *logout* untuk mencegah kesalahan operasional kasir.
 2. **Manajemen Produk & Stok Terisolasi**:
-   * Menambah, mencari, dan melihat daftar produk berdasarkan `business_id` masing-masing akun[cite: 3].
+   * Menambah, mencari, mengubah, dan menonaktifkan produk berdasarkan `business_id` masing-masing akun[cite: 3].
    * Pencatatan otomatis mutasi stok (*Initial Stock*, *Stock In/Out*, *Adjustment*)[cite: 3].
    * Indikator peringatan stok menipis (*Low Stock Threshold*)[cite: 3].
 3. **Modul Kasir / POS (Point of Sale)**:
@@ -23,21 +23,30 @@
    * Pembayaran tunai dicatat sebagai diterima. Transfer hanya dicatat metodenya;
      belum ada verifikasi bank/QRIS atau status MENUNGGU/GAGAL.
 4. **Pencatatan Pengeluaran & Keuangan**:
-   * Modul pencatatan biaya operasional harian/bulanan toko.
+   * Modul pencatatan biaya operasional harian/bulanan toko, termasuk edit/hapus dan filter periode.
    * Dashboard menampilkan agregat seluruh data atau rentang tanggal tertentu
-     (Dari/Sampai).
-5. **Pengaturan Sistem & Personalisasi**:
+     (Dari/Sampai) dan hanya dapat diakses owner/manajer.
+5. **Peran, Shift, dan Jejak Audit**:
+   * Anggota bisnis dengan peran OWNER/MANAGER/CASHIER; owner dapat mengundang,
+     mengubah peran, dan menonaktifkan anggota.
+   * Buka/tutup shift dengan kas awal, kas aktual, dan selisih kas.
+   * Batal/retur penuh dengan alasan, pengembalian stok, dan pencatatan pelaku.
+   * Audit trail nilai sebelum/sesudah untuk perubahan produk, stok, pengeluaran,
+     penjualan, dan shift.
+6. **Riwayat Transaksi**:
+   * Daftar transaksi dengan filter tanggal/metode/status dan nama kasir.
+7. **Pengaturan Sistem & Personalisasi**:
    * Pengaturan preferensi tampilan (Tipografi & Ukuran Teks UI).
-   * Pembaruan profil akun aktif dan informasi toko secara *real-time*.
+   * Pembaruan profil akun aktif dan informasi toko (tab toko hanya untuk owner).
 
 ### C. Batas MVP (jangan diklaim sebagai fitur tersedia)
 
-* Peran owner/manajer/kasir, akun karyawan, dan pembatasan modul belum ada.
-* Shift, buka/tutup kas, dan rekonsiliasi kas belum ada.
-* Pembatalan, retur, refund, dan audit trail belum ada.
-* Filter rentang tanggal tersedia di dashboard. Preset periode, filter di daftar
-  transaksi/pengeluaran, ekspor CSV/Excel/PDF, dan perbandingan periode belum ada.
-* Migrasi database (Alembic), backup otomatis, dan monitoring belum ada.
+* Retur sebagian dan refund terintegrasi penyedia pembayaran belum ada; batal/retur
+  saat ini berlaku penuh dan mengembalikan stok.
+* Preset periode, ekspor CSV/Excel/PDF, dan perbandingan periode belum ada.
+* Migrasi database (Alembic) belum aktif; skema masih dibuat lewat
+  `Base.metadata.create_all`. Backup manual tersedia di `scripts/backup_db.sh`,
+  tetapi penjadwalan, uji pemulihan, dan monitoring belum ada.
 * Printer struk, barcode scanner, mode offline, multi-cabang, dan integrasi
   pembayaran belum diuji atau belum tersedia.
 * Analisis AI bersifat opsional dan bukan laporan akuntansi resmi.

@@ -11,8 +11,10 @@ import {
   TrendingUp,
   Wallet,
   CalendarDays,
+  ShieldAlert,
 } from "lucide-react";
 import { fetchApi, getBusinessId } from "@/lib/api";
+import { isManagerRole, useSessionRole } from "@/lib/session";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonStyles } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -78,6 +80,8 @@ function DashboardSkeleton() {
 
 export default function DashboardPage() {
   const businessId = getBusinessId();
+  const sessionRole = useSessionRole();
+  const isManager = isManagerRole(sessionRole);
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -124,6 +128,13 @@ export default function DashboardPage() {
     let cancelled = false;
     const controller = new AbortController();
 
+    if (sessionRole !== null && !isManager) {
+      return () => {
+        cancelled = true;
+        controller.abort();
+      };
+    }
+
     void (async () => {
       if (businessId === null) {
         setError("Sesi login tidak ditemukan. Silakan masuk kembali.");
@@ -149,7 +160,7 @@ export default function DashboardPage() {
       cancelled = true;
       controller.abort();
     };
-  }, [businessId, fetchDashboard]);
+  }, [businessId, fetchDashboard, isManager, sessionRole]);
 
   const applyPeriod = () => {
     if (startDate && endDate && startDate > endDate) {
@@ -216,6 +227,44 @@ export default function DashboardPage() {
         appliedEndDate ? formatPeriodDate(appliedEndDate) : "Sekarang"
       }`
     : "Semua data";
+
+  if (sessionRole !== null && !isManager) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+            Dashboard
+          </div>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+            Ringkasan usaha
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Laporan keuangan hanya tersedia untuk owner dan manajer.
+          </p>
+        </div>
+
+        <Card className="p-6">
+          <EmptyState
+            icon={ShieldAlert}
+            title="Akses dashboard terbatas"
+            description="Akun kasir dapat memproses transaksi, melihat histori penjualan, dan mengelola shift. Hubungi owner atau manajer untuk laporan keuangan."
+            action={
+              <div className="flex flex-wrap justify-center gap-2">
+                <Link href="/dashboard/pos" className={buttonStyles({ size: "sm" })}>
+                  <ShoppingCart className="h-3.5 w-3.5" />
+                  Buka kasir
+                </Link>
+                <Link href="/dashboard/sales" className={buttonStyles({ size: "sm", variant: "outline" })}>
+                  Histori penjualan
+                </Link>
+              </div>
+            }
+          />
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

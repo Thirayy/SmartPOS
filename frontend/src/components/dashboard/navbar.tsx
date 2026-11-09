@@ -1,37 +1,79 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   AlertTriangle,
   Bot,
   ChevronUp,
+  Clock,
   History,
   LayoutDashboard,
   LogOut,
   Package,
+  ScrollText,
   Settings,
   ShoppingCart,
   Store,
+  Users,
   Wallet,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import { fetchApi } from "@/lib/api";
+import { roleLabel, useSessionRole, type UserRole } from "@/lib/session";
 
-const navItems = [
-  { name: "Dashboard", shortName: "Beranda", href: "/dashboard", icon: LayoutDashboard },
+type NavItem = {
+  name: string;
+  shortName: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  roles?: UserRole[];
+};
+
+const navItems: NavItem[] = [
+  {
+    name: "Dashboard",
+    shortName: "Beranda",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    roles: ["OWNER", "MANAGER"],
+  },
   { name: "Kasir", shortName: "Kasir", href: "/dashboard/pos", icon: ShoppingCart },
   { name: "Produk & Stok", shortName: "Produk", href: "/dashboard/products", icon: Package },
-  { name: "Pengeluaran", shortName: "Biaya", href: "/dashboard/expenses", icon: Wallet },
   { name: "Histori Penjualan", shortName: "Penjualan", href: "/dashboard/sales", icon: History },
-  { name: "Asisten AI", shortName: "Asisten", href: "/dashboard/assistant", icon: Bot },
+  { name: "Shift Kasir", shortName: "Shift", href: "/dashboard/shifts", icon: Clock },
+  {
+    name: "Anggota Tim",
+    shortName: "Tim",
+    href: "/dashboard/members",
+    icon: Users,
+    roles: ["OWNER", "MANAGER"],
+  },
+  {
+    name: "Pengeluaran",
+    shortName: "Biaya",
+    href: "/dashboard/expenses",
+    icon: Wallet,
+    roles: ["OWNER", "MANAGER"],
+  },
+  {
+    name: "Audit Log",
+    shortName: "Audit",
+    href: "/dashboard/audit",
+    icon: ScrollText,
+    roles: ["OWNER", "MANAGER"],
+  },
+  {
+    name: "Asisten AI",
+    shortName: "Asisten",
+    href: "/dashboard/assistant",
+    icon: Bot,
+    roles: ["OWNER", "MANAGER"],
+  },
   { name: "Pengaturan", shortName: "Pengaturan", href: "/dashboard/settings", icon: Settings },
 ];
-
-const mobileItems = [navItems[0], navItems[1], navItems[2], navItems[4]];
-const moreItems = [navItems[3], navItems[5], navItems[6]];
 
 interface UserProfile {
   full_name: string;
@@ -51,6 +93,7 @@ function getInitials(name: string) {
 export function DashboardNavbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const sessionRole = useSessionRole();
   const [openMorePath, setOpenMorePath] = useState<string | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -77,11 +120,22 @@ export function DashboardNavbar() {
     };
   }, []);
 
+  const visibleItems = useMemo(() => {
+    if (sessionRole) {
+      return navItems.filter((item) => !item.roles || item.roles.includes(sessionRole));
+    }
+    return navItems.filter((item) => !item.roles);
+  }, [sessionRole]);
+
+  const mobileItems = visibleItems.slice(0, 4);
+  const moreItems = visibleItems.slice(4);
+
   const handleLogout = () => {
     setShowLogoutModal(false);
     localStorage.removeItem("auth_token");
     localStorage.removeItem("smartpos_access_token");
     localStorage.removeItem("smartpos_user_id");
+    localStorage.removeItem("smartpos_role");
     localStorage.removeItem("smartpos_business_id");
     localStorage.removeItem("user_session");
     router.replace("/auth/login");
@@ -110,13 +164,13 @@ export function DashboardNavbar() {
             <span className="leading-tight">
               <span className="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">SmartPOS</span>
               <span className="hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500 sm:block">
-                UMKM Master
+                {sessionRole ? roleLabel(sessionRole) : "UMKM Master"}
               </span>
             </span>
           </Link>
 
           <nav className="no-scrollbar hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-x-auto md:flex" aria-label="Navigasi utama">
-            {navItems.map((item) => {
+            {visibleItems.map((item) => {
               const active = isActivePath(pathname, item.href);
               const Icon = item.icon;
               return (
@@ -134,7 +188,7 @@ export function DashboardNavbar() {
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="hidden lg:inline">{item.name}</span>
+                  <span className="hidden xl:inline">{item.name}</span>
                 </Link>
               );
             })}
@@ -186,25 +240,27 @@ export function DashboardNavbar() {
               </Link>
             );
           })}
-          <button
-            type="button"
-            aria-expanded={openMorePath === pathname}
-            aria-controls="mobile-more-menu"
-            onClick={() => setOpenMorePath((openPath) => openPath === pathname ? null : pathname)}
-            className={cn(
-              "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600",
-              openMorePath === pathname || moreItems.some((item) => isActivePath(pathname, item.href))
-                ? "text-teal-700 dark:text-teal-300"
-                : "text-slate-500 dark:text-slate-400"
-            )}
-          >
-            {openMorePath === pathname ? <ChevronUp className="h-5 w-5" aria-hidden="true" /> : <Store className="h-5 w-5" aria-hidden="true" />}
-            <span>Lainnya</span>
-          </button>
+          {moreItems.length > 0 ? (
+            <button
+              type="button"
+              aria-expanded={openMorePath === pathname}
+              aria-controls="mobile-more-menu"
+              onClick={() => setOpenMorePath((openPath) => openPath === pathname ? null : pathname)}
+              className={cn(
+                "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600",
+                openMorePath === pathname || moreItems.some((item) => isActivePath(pathname, item.href))
+                  ? "text-teal-700 dark:text-teal-300"
+                  : "text-slate-500 dark:text-slate-400"
+              )}
+            >
+              {openMorePath === pathname ? <ChevronUp className="h-5 w-5" aria-hidden="true" /> : <Store className="h-5 w-5" aria-hidden="true" />}
+              <span>Lainnya</span>
+            </button>
+          ) : null}
         </div>
       </nav>
 
-      {openMorePath === pathname && (
+      {openMorePath === pathname && moreItems.length > 0 && (
         <div
           id="mobile-more-menu"
           className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-2 shadow-xl md:hidden dark:border-slate-700 dark:bg-slate-900"

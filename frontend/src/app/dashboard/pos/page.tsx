@@ -6,6 +6,7 @@ import {
   Banknote,
   CalendarDays,
   CheckCircle2,
+  Clock,
   CreditCard,
   Minus,
   Package,
@@ -118,6 +119,7 @@ export default function POSPage() {
   const [lastSale, setLastSale] = useState<SaleResult | null>(null);
   const checkoutKeyRef = useRef<string | null>(null);
   const today = useTodayLabel();
+  const [activeShift, setActiveShift] = useState<{ id: number; opened_at: string } | null>(null);
 
   const loadProducts = useCallback(
     async (options?: { background?: boolean }) => {
@@ -169,6 +171,26 @@ export default function POSPage() {
         if (!cancelled) setError(getErrorMessage(loadError));
       } finally {
         if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [businessId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      if (businessId === null) return;
+      try {
+        const data = await fetchApi(`/businesses/${businessId}/shifts/active`);
+        if (!cancelled) {
+          setActiveShift(data && typeof data === "object" ? (data as { id: number; opened_at: string }) : null);
+        }
+      } catch {
+        if (!cancelled) setActiveShift(null);
       }
     })();
 
@@ -379,6 +401,19 @@ export default function POSPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/dashboard/shifts"
+            title={activeShift ? "Kelola shift kasir" : "Buka shift terlebih dahulu"}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset transition",
+              activeShift
+                ? "bg-emerald-50 text-emerald-700 ring-emerald-600/10 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20"
+                : "bg-amber-50 text-amber-700 ring-amber-600/10 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20"
+            )}
+          >
+            <Clock className="h-3 w-3" />
+            {activeShift ? "Shift aktif" : "Belum buka shift"}
+          </Link>
           <Badge tone="emerald">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
             POS siap

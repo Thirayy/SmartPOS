@@ -34,6 +34,10 @@ export interface SaleResponse {
   change_amount: number;
   status: string;
   cashier_user_id: number;
+  cashier_name: string | null;
+  cancelled_at: string | null;
+  cancelled_by_user_id: number | null;
+  cancel_reason: string | null;
   created_at: string;
   items: SaleItemResponse[];
 }

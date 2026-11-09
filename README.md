@@ -23,6 +23,10 @@ atau membuat klaim promosi.
 - Dashboard: omzet, jumlah transaksi, HPP, laba kotor, pengeluaran, estimasi
   hasil operasional, dan 5 produk terlaris. Bisa difilter dengan rentang tanggal
   (Dari/Sampai) atau seluruh data.
+- Shift & cash reconciliation: buka/tutup shift, uang awal, hitung kas akhir,
+  selisih kas (actual vs expected).
+- Audit trail: riwayat perubahan harga, stok, pengeluaran, dan akun.
+- Cancel/Return endpoint: status `CANCELLED`, kembalikan stok, catat log audit.
 - Analisis AI opsional (butuh `AI_API_KEY`) dengan otorisasi per bisnis.
 
 ## Batas kemampuan MVP
@@ -30,15 +34,15 @@ atau membuat klaim promosi.
 | Area | Kondisi saat ini |
 | --- | --- |
 | Pembayaran | Tunai dicatat sebagai pembayaran diterima. Transfer hanya dicatat **metodenya**; tidak ada verifikasi bank/QRIS, tidak ada status MENUNGGU/GAGAL. Semua checkout tersimpan `COMPLETED`. |
-| Laporan | Dashboard punya filter rentang tanggal (batas hari mengikuti `APP_TIMEZONE`). Belum ada preset hari/minggu/bulan, filter di daftar transaksi/pengeluaran, ekspor CSV/Excel, atau perbandingan periode. |
+| Laporan | Dashboard, daftar transaksi, dan daftar pengeluaran punya filter rentang tanggal (batas hari mengikuti `APP_TIMEZONE`). Belum ada preset hari/minggu/bulan, ekspor CSV/Excel, atau perbandingan periode. |
 | Istilah keuangan | "Hasil operasional" = laba kotor dikurangi pengeluaran tercatat. Bukan laba bersih akuntansi; belum termasuk pajak, penyusutan, dan biaya lain. |
-| Peran & akses | Kolom `role` ada, tetapi akun karyawan, peran owner/manajer/kasir, dan pembatasan modul **belum diimplementasikan**. Semua akses bisnis saat ini terikat ke pemilik (`owner_user_id`). |
-| Shift & kas | Belum ada buka/tutup shift, uang awal, hitung kas akhir, atau selisih kas. |
-| Batal/retur | Belum ada endpoint pembatalan, retur, refund, atau alasan perubahan. Status `CANCELLED` ada di model tetapi belum dipakai. |
+| Peran & akses | Peran OWNER/MANAGER/CASHIER lewat `business_members`, undang/nonaktifkan anggota, dan pembatasan modul di backend serta navigasi frontend. Tab profil toko hanya untuk owner. |
+| Shift & kas | Buka/tutup shift, kas awal, perkiraan kas, kas aktual, dan selisih. Belum terhubung ke laci uang/mesin kasir fisik. |
+| Batal/retur | Batal/retur **penuh** dengan alasan, pengembalian stok, pelaku, dan audit. Belum ada retur sebagian atau refund terintegrasi bank/QRIS. |
 | Stok masuk | Belum ada pencatatan pemasok/purchase order. Barang masuk memakai penyesuaian stok manual. |
-| Audit | Belum ada jejak nilai sebelum/sesudah untuk perubahan harga, stok, pengeluaran, atau pengaturan akun. |
+| Audit | Nilai sebelum/sesudah dicatat untuk produk, stok, pengeluaran, penjualan, dan shift; tersedia halaman audit dengan filter. |
 | Migrasi DB | Tabel dibuat otomatis saat startup (`Base.metadata.create_all`). Alembic belum dipakai. |
-| Backup | Belum ada backup otomatis. Prosedur manual ada di bawah. |
+| Backup | Script `scripts/backup_db.sh` (pg_dump + retensi) tersedia. Penjadwalan cron dan uji pemulihan masih tanggung jawab operator. |
 | Perangkat | Belum diuji untuk printer struk, barcode scanner, atau mode offline. |
 | Keamanan sesi | Token disimpan di `localStorage` (risiko XSS). Cookie HttpOnly + CSRF belum diterapkan. |
 | Pemulihan password | Reset lewat email belum tersedia; UI hanya menjelaskan bahwa pengguna dapat mengganti sandi setelah login. |
@@ -114,8 +118,9 @@ curl http://localhost:8000/
 # {"message":"Welcome to SmartPOS MVP API","status":"active"}
 ```
 
-Tabel database dibuat otomatis saat startup. Ini cukup untuk demo, tetapi belum
-menggantikan migrasi database yang terkelola.
+Tabel database dibuat otomatis saat startup (`Base.metadata.create_all`). Ini cukup untuk demo,
+tetapi belum menggantikan migrasi database yang terkelola atau menggunakan Alembic. Jika ingin
+menggunakan Alembic, jalankan `alembic upgrade head` setelah memperbarui env.py dan script.py.mako.
 
 ### 4. Frontend
 
@@ -175,8 +180,8 @@ Test akan otomatis membuat database `smartpos_db_test` (nama diturunkan dari
 - dua checkout bersamaan untuk stok terakhir,
 - diskon melebihi subtotal,
 - keranjang kosong,
-- filter laporan berdasarkan rentang tanggal,
-- isolasi data antarbisnis dan proteksi endpoint AI.
+- filter laporan berdasarkan rentang tanggal dan zona waktu bisnis,
+- isolasi data antarbisnis, otorisasi login, dan proteksi endpoint AI.
 
 ## Konfigurasi
 
@@ -205,20 +210,44 @@ Semua endpoint di bawah prefix `/api/v1`. Endpoint bisnis memerlukan header
 | GET/PATCH | `/auth/me`, `/auth/password` | Profil dan ganti sandi. |
 | GET/PATCH | `/businesses/{id}` | Informasi bisnis. |
 | GET/POST | `/businesses/{id}/products` | Daftar / tambah produk. |
+| PATCH/DELETE | `/businesses/{id}/products/{product_id}` | Ubah / nonaktifkan produk. |
 | POST | `/businesses/{id}/products/{product_id}/adjust` | Penyesuaian stok. |
 | POST | `/businesses/{id}/sales/checkout` | Checkout POS. |
-| GET | `/businesses/{id}/sales`, `/sales/{sale_id}` | Riwayat dan detail struk. |
-| GET/POST | `/businesses/{id}/expenses` | Daftar / tambah pengeluaran. |
+| GET | `/businesses/{id}/sales`, `/sales/{sale_id}` | Riwayat dan detail struk; filter tanggal/metode/status. |
+| POST | `/businesses/{id}/sales/{sale_id}/cancel`, `/return` | Batal/retur penuh dengan alasan. |
+| GET/POST | `/businesses/{id}/expenses` | Daftar / tambah pengeluaran; filter `start_date`/`end_date`. |
+| PATCH/DELETE | `/businesses/{id}/expenses/{expense_id}` | Ubah / hapus pengeluaran. |
+| GET/POST | `/businesses/{id}/shifts` | Daftar / buka shift. |
+| GET | `/businesses/{id}/shifts/active` | Shift aktif pengguna. |
+| POST | `/businesses/{id}/shifts/{shift_id}/close` | Tutup shift dan hitung selisih kas. |
+| GET/POST | `/businesses/{id}/members` | Daftar / tambah anggota (owner). |
+| PATCH/DELETE | `/businesses/{id}/members/{member_id}` | Ubah peran/status / nonaktifkan anggota. |
+| GET | `/businesses/{id}/audit` | Audit trail; filter entitas, aksi, limit, offset. |
 | GET | `/businesses/{id}/reports/dashboard` | Ringkasan keuangan; query opsional `start_date` dan `end_date` (`YYYY-MM-DD`). |
 | POST | `/businesses/{id}/ai/analyze` | Analisis AI (butuh otorisasi bisnis). |
 
-## Backup dan pemulihan (manual)
+## Backup dan pemulihan (otomatis)
 
-Backup:
+Script backup tersedia di `scripts/backup_db.sh` (membaca `backend/.env` atau
+`DATABASE_URL`, menyimpan `pg_dump` custom, dan menghapus backup lebih lama dari
+`RETENTION_DAYS`, default 14 hari). Jalankan manual:
+
+```bash
+./scripts/backup_db.sh
+```
+
+Manual backup (prosedur):
 
 ```bash
 pg_dump "postgresql://postgres:postgres@localhost:5432/smartpos_db" \
-  --format=custom --file=backups/smartpos-$(date +%F).dump
+  --format=custom --no-owner --clean \
+  --file=backups/smartpos-YYYY-MM-DD.dump
+```
+
+Jadwalkan harian lewat crontab (contoh pukul 02:00):
+
+```bash
+0 2 * * * /path/ke/smartpos/scripts/backup_db.sh
 ```
 
 Pemulihan ke database kosong:
@@ -236,11 +265,10 @@ dicoba dipulihkan.
 Prioritas berikutnya ada di [docs/roadmap.md](docs/roadmap.md). Urutan besarnya:
 
 1. Stabilkan demo & pengujian transaksi.
-2. Hak akses owner/manajer/kasir dan pembatasan modul.
-3. Laporan per periode lanjutan: preset, rekonsiliasi, dan validasi perhitungan.
-4. Pembatalan/retur, shift, rekonsiliasi kas.
-5. Migrasi database (Alembic), backup terjadwal, monitoring.
-6. Ekspor laporan, integrasi pembayaran, perangkat keras, multi-cabang, offline.
+2. Laporan per periode lanjutan: preset dan validasi perhitungan.
+3. Migrasi database (Alembic), penjadwalan backup, dan monitoring.
+4. Test shift/anggota/audit, frontend, dan end-to-end.
+5. Ekspor laporan, integrasi pembayaran, perangkat keras, multi-cabang, offline.
 
 ## Lisensi
 

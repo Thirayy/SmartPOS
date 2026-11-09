@@ -8,19 +8,19 @@ Centang hanya fitur yang benar-benar ada di repository dan sudah diuji.
 | Modul | Status | Catatan |
 | --- | --- | --- |
 | Auth & multi-bisnis | Selesai (dasar) | Register, login JWT, profil, ganti sandi. Setiap endpoint bisnis memakai `authorize_business_access`. |
-| Produk & stok | Selesai (dasar) | CRUD terbatas: tambah, daftar, penyesuaian stok, mutasi. Belum ada edit/hapus produk, pemasok, atau purchase order. |
+| Produk & stok | Selesai (dasar) | Tambah, daftar, edit, nonaktifkan, penyesuaian stok, dan mutasi. Belum ada pemasok atau purchase order. |
 | POS & checkout | Selesai (dasar) | Keranjang, diskon, tunai/transfer, struk. Checkout memakai lock baris produk dan `idempotency_key`. |
-| Riwayat transaksi | Selesai (dasar) | Daftar dan detail struk. Belum ada filter tanggal/kasir atau pembatalan. |
-| Pengeluaran | Selesai (dasar) | Kategori, nominal, tanggal, deskripsi. Belum ada edit/hapus atau filter periode. |
+| Riwayat transaksi | Selesai (dasar) | Daftar, detail struk, filter tanggal/metode/status, serta batal/retur dengan alasan. |
+| Pengeluaran | Selesai (dasar) | Kategori, nominal, tanggal, deskripsi, filter periode, edit, dan hapus. |
 | Dashboard | Sebagian | Omzet, transaksi, HPP, laba kotor, pengeluaran, estimasi hasil operasional, produk terlaris. Filter rentang tanggal tersedia. |
-| Laporan per periode | Sebagian | Filter rentang tanggal (Dari/Sampai) di dashboard dengan batas hari `APP_TIMEZONE`. Belum ada preset, ekspor, rekonsiliasi, atau filter di daftar transaksi/pengeluaran. |
-| Peran & hak akses | Belum | `role` ada, tetapi akun karyawan dan pembatasan modul belum ada. |
-| Shift & rekonsiliasi kas | Belum | Belum ada buka/tutup shift atau hitung kas. |
-| Batal/retur/refund | Belum | Status `CANCELLED` ada, endpoint belum ada. |
-| Audit trail | Belum | Belum mencatat nilai sebelum/sesudah perubahan penting. |
-| Migrasi database | Belum | Masih `Base.metadata.create_all` saat startup. Alembic belum dipakai. |
-| Backup otomatis | Belum | Prosedur manual ada di README. |
-| Test otomatis | Sebagian | Test backend untuk checkout sukses, stok kurang, produk nonaktif, checkout ganda, dua checkout bersamaan, diskon, keranjang kosong, filter laporan, isolasi bisnis. Belum ada test frontend/end-to-end. |
+| Laporan per periode | Sebagian | Filter rentang tanggal (Dari/Sampai) di dashboard, daftar transaksi, dan daftar pengeluaran dengan batas hari `APP_TIMEZONE`. Belum ada preset atau ekspor. |
+| Peran & hak akses | Selesai (dasar) | `business_members` OWNER/MANAGER/CASHIER, kelola anggota, dan pembatasan modul di backend + navigasi frontend. |
+| Shift & rekonsiliasi kas | Selesai (dasar) | Buka/tutup shift, kas awal, kas aktual, selisih, dan daftar shift. |
+| Batal/retur/refund | Selesai (dasar) | Batal/retur penuh: status `CANCELLED`, stok dikembalikan, alasan dan pelaku dicatat. Belum ada retur sebagian atau refund terintegrasi. |
+| Audit trail | Selesai (dasar) | Perubahan produk, stok, pengeluaran, penjualan, dan shift tercatat dengan nilai sebelum/sesudah. |
+| Migrasi database | Belum | Masih `Base.metadata.create_all` saat startup. Kerangka Alembic ada tetapi `script_location` belum dikonfigurasi. |
+| Backup otomatis | Sebagian | `scripts/backup_db.sh` (pg_dump + retensi) tersedia. Penjadwalan cron belum diuji. |
+| Test otomatis | Sebagian | 12 test backend lulus: checkout, stok, idempotensi, konkurensi, diskon, filter laporan, isolasi bisnis, dan otorisasi. Belum ada test shift/anggota/audit, frontend, atau end-to-end. |
 | AI | Sebagian | Endpoint sudah diotorisasi per bisnis dan opsional. Bukan laporan akuntansi. |
 | Ekspor, pembayaran terintegrasi, perangkat keras, multi-cabang, offline | Belum | Jangan diklaim sampai diuji end-to-end. |
 
@@ -61,32 +61,32 @@ Centang hanya fitur yang benar-benar ada di repository dan sudah diuji.
 Prioritas tinggi, berurutan:
 
 1. **Hak akses**
-   - [ ] Tabel keanggotaan bisnis (`business_members`) dengan peran owner/manajer/kasir.
-   - [ ] Undang/nonaktifkan akun karyawan.
-   - [ ] Batasi modul: kasir hanya POS dan riwayat yang diperlukan; manajer produk/stok/laporan operasional; owner semua.
-   - [ ] Catat `cashier_user_id` dan tampilkan di riwayat.
-   - [ ] Test akses: kasir tidak bisa membuka fungsi owner, pengguna tidak bisa membuka bisnis lain.
+   - [x] Tabel keanggotaan bisnis (`business_members`) dengan peran owner/manajer/kasir.
+   - [x] Undang/nonaktifkan akun karyawan dari halaman Anggota.
+   - [x] Batasi modul: kasir hanya POS/riwayat/shift/setelan pribadi; manajer produk/stok/laporan operasional; owner semua.
+   - [x] Catat `cashier_user_id` dan tampilkan nama kasir di riwayat.
+   - [x] Test akses: kasir tidak bisa membuka fungsi owner, pengguna tidak bisa membuka bisnis lain.
 
 2. **Laporan per periode**
    - [x] Filter rentang tanggal (Dari/Sampai) di dashboard.
    - [ ] Preset hari ini, kemarin, minggu ini, dan bulan ini.
-   - [ ] Filter tanggal di daftar transaksi dan pengeluaran.
+   - [x] Filter tanggal di daftar transaksi dan pengeluaran.
    - [x] Definisikan omzet, HPP, laba kotor, pengeluaran, dan hasil operasional secara eksplisit di UI.
-   - [ ] Kecualikan transaksi batal/retur dari penjualan (menunggu fitur batal/retur).
+   - [x] Kecualikan transaksi batal/retur dari penjualan (laporan hanya menghitung `COMPLETED`).
    - [x] Test perhitungan laporan terhadap rentang tanggal.
 
 3. **Pembatalan, retur, dan rekonsiliasi**
-   - [ ] Endpoint pembatalan/retur dengan alasan, izin, dan audit.
-   - [ ] Kembalikan stok dan sesuaikan laporan secara konsisten.
-   - [ ] Buka/tutup shift, uang awal, kas aktual, dan selisih kas.
+   - [x] Endpoint pembatalan/retur dengan alasan, izin, dan audit.
+   - [x] Kembalikan stok dan sesuaikan laporan secara konsisten.
+   - [x] Buka/tutup shift, uang awal, kas aktual, dan selisih kas.
 
 4. **Audit dan pengeluaran**
-   - [ ] Riwayat perubahan harga, stok, pengeluaran, dan akun.
-   - [ ] Edit/hapus pengeluaran dengan jejak perubahan.
+   - [x] Riwayat perubahan harga, stok, pengeluaran, penjualan, dan shift.
+   - [x] Edit/hapus pengeluaran dengan jejak perubahan.
 
 5. **Keandalan**
-   - [ ] Alembic untuk migrasi skema.
-   - [ ] Backup terjadwal dan prosedur pemulihan yang diuji.
+   - [ ] Alembic untuk migrasi skema (kerangka ada, konfigurasi belum lengkap).
+   - [x] Script backup `pg_dump` dengan retensi; penjadwalan dan uji pemulihan masih pending.
    - [ ] Penanganan kegagalan koneksi dan pesan error yang konsisten.
    - [ ] Monitoring error (mis. Sentry) dan log transaksi kunci.
 
@@ -94,7 +94,7 @@ Prioritas tinggi, berurutan:
    - [ ] Test frontend untuk validasi form dan status pembayaran.
    - [ ] Test end-to-end (Playwright) dari login sampai checkout.
    - [ ] Checklist regresi setiap perubahan POS/stok.
-   - [ ] CI (GitHub Actions) untuk lint dan test.
+   - [x] CI (GitHub Actions) untuk lint/build frontend dan test backend.
 
 ## Fase 5 — Pengembangan lanjutan
 
