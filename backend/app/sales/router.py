@@ -11,13 +11,16 @@ from sqlalchemy.orm import Session
 
 from app.audit.service import record_audit, snapshot
 from app.auth.dependencies import (
+    BusinessAccess,
     authorize_business_access,
+    get_business_access,
     get_current_user,
     require_roles,
 )
 from app.auth.models import User
 from app.core.dates import utc_naive_bounds
 from app.core.database import get_db
+from app.members.models import ROLE_CASHIER
 from app.products.models import InventoryMovement, Product
 from app.sales.models import Sale, SaleItem
 from app.sales.schemas import (
@@ -25,6 +28,7 @@ from app.sales.schemas import (
     SaleCancelRequest,
     SaleResponse,
 )
+from app.shifts.models import SHIFT_OPEN, Shift
 
 router = APIRouter(
     prefix="/businesses/{business_id}/sales",
@@ -67,6 +71,7 @@ def checkout(
     business_id: int,
     req: CheckoutRequest,
     current_user: User = Depends(get_current_user),
+    access: BusinessAccess = Depends(get_business_access),
     db: Session = Depends(get_db),
 ):
     if req.idempotency_key:
@@ -80,6 +85,26 @@ def checkout(
             return existing_sale
     else:
         transaction_number = f"TRX-{uuid.uuid4().hex[:8].upper()}"
+
+    if access.role == ROLE_CASHIER:
+        active_shift = (
+            db.query(Shift)
+            .filter(
+                Shift.business_id == business_id,
+                Shift.cashier_user_id == current_user.id,
+                Shift.status == SHIFT_OPEN,
+            )
+            .with_for_update()
+            .first()
+        )
+        if active_shift is None:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Buka shift terlebih dahulu sebelum melakukan transaksi. "
+                    "Isi kas awal di halaman Shift Kasir."
+                ),
+            )
 
     try:
         quantities: dict[int, int] = {}

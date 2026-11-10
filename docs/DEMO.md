@@ -54,12 +54,15 @@ Yang dijelaskan:
 
 ### Langkah 2 — Buka shift kasir
 
-1. Buka **Shift**.
-2. Klik **Buka shift**, isi kas awal `100000`, lalu simpan.
+1. Masuk sebagai kasir, lalu buka **Shift Kasir**. Halaman **Kasir** akan
+   menampilkan ajakan **Buka shift dulu, yuk** sampai shift dibuka.
+2. Klik **Mulai shift**, isi kas awal `100000`, lalu simpan.
 3. Badge di halaman **Kasir** berubah menjadi **Shift aktif**.
 
 Yang dijelaskan:
 
+- Backend menolak checkout kasir jika belum ada shift terbuka. Owner/manajer
+  tetap dapat checkout tanpa shift.
 - Saat tutup shift, aplikasi membandingkan kas aktual dengan perkiraan
   (kas awal + penjualan tunai − retur tunai) dan menampilkan selisih.
 

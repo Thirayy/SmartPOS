@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowUpDown, Package, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertTriangle, ArrowUpDown, Ban, Package, Pencil, Plus, Search, X } from "lucide-react";
 import { fetchApi, getBusinessId } from "@/lib/api";
 import { isManagerRole, useSessionRole } from "@/lib/session";
 import { Badge } from "@/components/ui/badge";
@@ -474,7 +474,107 @@ export default function ProductsPage() {
         />
       ) : (
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800 md:hidden">
+            {filteredProducts.map((product) => {
+              const stock = Number(product.stock);
+              const costPrice = Number(product.cost_price);
+              const sellingPrice = Number(product.selling_price);
+              const margin =
+                sellingPrice > 0
+                  ? Math.round(((sellingPrice - costPrice) / sellingPrice) * 100)
+                  : 0;
+              const isLow = stock > 0 && stock <= product.low_stock_threshold;
+              const isOut = stock <= 0;
+
+              return (
+                <div key={product.id} className="p-4">
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={cn(
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[11px] font-extrabold",
+                        getProductTone(product.name)
+                      )}
+                    >
+                      {getInitials(product.name)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                            {product.name}
+                          </p>
+                          <p className="mt-0.5 truncate text-[11px] text-slate-400 dark:text-slate-500">
+                            {product.sku || "Tanpa SKU"}
+                          </p>
+                        </div>
+                        <Badge tone={isOut ? "rose" : isLow ? "amber" : "emerald"}>
+                          {isOut ? "Habis" : isLow ? `Sisa ${stock}` : `${stock} unit`}
+                        </Badge>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 text-[11px] dark:bg-slate-800/40">
+                        <div>
+                          <p className="font-medium text-slate-400 dark:text-slate-500">Harga jual</p>
+                          <p className="mt-0.5 font-bold text-teal-700 dark:text-teal-300">
+                            {formatRupiah(product.selling_price)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-400 dark:text-slate-500">Harga beli</p>
+                          <p className="mt-0.5 font-semibold text-slate-600 dark:text-slate-300">
+                            {formatRupiah(product.cost_price)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-400 dark:text-slate-500">Margin</p>
+                          <p className="mt-0.5 font-semibold text-slate-600 dark:text-slate-300">
+                            {margin}%
+                          </p>
+                        </div>
+                      </div>
+
+                      {canManage ? (
+                        <div className="mt-3 grid grid-cols-3 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => openEdit(product)}
+                            aria-label={`Ubah produk ${product.name}`}
+                            className="flex h-9 items-center justify-center gap-1 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 active:scale-95 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                            Ubah
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openAdjust(product)}
+                            aria-label={`Sesuaikan stok ${product.name}`}
+                            className="flex h-9 items-center justify-center gap-1 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 transition hover:bg-sky-50 hover:text-sky-600 active:scale-95 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-sky-500/10 dark:hover:text-sky-300"
+                          >
+                            <ArrowUpDown className="h-3.5 w-3.5" />
+                            Stok
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDeactivating(product);
+                              setDeleteError("");
+                            }}
+                            aria-label={`Nonaktifkan produk ${product.name}`}
+                            className="flex h-9 items-center justify-center gap-1 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 transition hover:bg-rose-50 hover:text-rose-600 active:scale-95 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                          >
+                            <Ban className="h-3.5 w-3.5" />
+                            Nonaktif
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] uppercase tracking-wider text-slate-400 dark:border-slate-800 dark:bg-slate-800/30 dark:text-slate-500">
@@ -552,7 +652,7 @@ export default function ProductsPage() {
                               onClick={() => openEdit(product)}
                               aria-label={`Ubah produk ${product.name}`}
                               title="Ubah produk"
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                             >
                               <Pencil className="h-3.5 w-3.5" />
                             </button>
@@ -561,7 +661,7 @@ export default function ProductsPage() {
                               onClick={() => openAdjust(product)}
                               aria-label={`Sesuaikan stok ${product.name}`}
                               title="Sesuaikan stok"
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-sky-50 hover:text-sky-600 active:scale-95 dark:hover:bg-sky-500/10 dark:hover:text-sky-300"
+                              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-sky-50 hover:text-sky-600 active:scale-95 dark:hover:bg-sky-500/10 dark:hover:text-sky-300"
                             >
                               <ArrowUpDown className="h-3.5 w-3.5" />
                             </button>
@@ -573,9 +673,9 @@ export default function ProductsPage() {
                               }}
                               aria-label={`Nonaktifkan produk ${product.name}`}
                               title="Nonaktifkan produk"
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 active:scale-95 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 active:scale-95 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Ban className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         </td>

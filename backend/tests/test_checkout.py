@@ -305,3 +305,201 @@ def test_checkout_rejects_empty_cart_and_invalid_quantity(
 
     assert get_sales(client, headers, business_id) == []
     assert get_products(client, headers, business_id)[0]["stock"] == 5
+
+
+def _create_member_and_login(
+    client, owner_headers, business_id, *, role, email, full_name
+):
+    response = client.post(
+        f"/api/v1/businesses/{business_id}/members/",
+        headers=owner_headers,
+        json={
+            "email": email,
+            "full_name": full_name,
+            "password": "MemberPassword123!",
+            "role": role,
+        },
+    )
+    assert response.status_code == 200, response.text
+
+    login = client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": "MemberPassword123!"},
+    )
+    assert login.status_code == 200, login.text
+    session = login.json()
+    return session, {"Authorization": f"Bearer {session['access_token']}"}
+
+
+def _open_shift(client, headers, business_id, opening_cash="100000.00"):
+    response = client.post(
+        f"/api/v1/businesses/{business_id}/shifts/open",
+        headers=headers,
+        json={"opening_cash": opening_cash},
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def _close_shift(client, headers, business_id, shift_id, actual_cash):
+    response = client.post(
+        f"/api/v1/businesses/{business_id}/shifts/{shift_id}/close",
+        headers=headers,
+        json={"actual_cash": actual_cash},
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def _checkout_payload(product_id, *, amount_received="20000.00", key=None):
+    payload = {
+        "payment_method": "CASH",
+        "amount_received": amount_received,
+        "discount": "0.00",
+        "items": [{"product_id": product_id, "quantity": 2}],
+    }
+    if key:
+        payload["idempotency_key"] = key
+    return payload
+
+
+def test_cashier_checkout_requires_open_shift(
+    client, owner_factory, product_factory, checkout
+):
+    owner_session, owner_headers = owner_factory()
+    business_id = owner_session["business_id"]
+    product = product_factory(headers=owner_headers, business_id=business_id, stock=5)
+    _, cashier_headers = _create_member_and_login(
+        client,
+        owner_headers,
+        business_id,
+        role="CASHIER",
+        email="cashier-no-shift@example.com",
+        full_name="Kasir Tanpa Shift",
+    )
+
+    response = checkout(
+        cashier_headers,
+        business_id,
+        _checkout_payload(product["id"]),
+    )
+
+    assert response.status_code == 400
+    assert "shift" in response.json()["detail"].lower()
+    assert get_sales(client, owner_headers, business_id) == []
+    assert get_products(client, owner_headers, business_id)[0]["stock"] == 5
+
+
+def test_cashier_can_checkout_after_opening_shift(
+    client, owner_factory, product_factory, checkout
+):
+    owner_session, owner_headers = owner_factory()
+    business_id = owner_session["business_id"]
+    product = product_factory(headers=owner_headers, business_id=business_id, stock=5)
+    _, cashier_headers = _create_member_and_login(
+        client,
+        owner_headers,
+        business_id,
+        role="CASHIER",
+        email="cashier-with-shift@example.com",
+        full_name="Kasir Shift",
+    )
+    shift = _open_shift(client, cashier_headers, business_id)
+
+    response = checkout(
+        cashier_headers,
+        business_id,
+        _checkout_payload(product["id"]),
+    )
+
+    assert response.status_code == 200, response.text
+    assert as_decimal(response.json()["total_amount"]) == Decimal("20000.00")
+
+    active = client.get(
+        f"/api/v1/businesses/{business_id}/shifts/active",
+        headers=cashier_headers,
+    )
+    assert active.status_code == 200
+    shift_summary = active.json()
+    assert shift_summary["id"] == shift["id"]
+    assert as_decimal(shift_summary["expected_cash"]) == Decimal("120000.00")
+    assert as_decimal(shift_summary["total_cash_sales"]) == Decimal("20000.00")
+    assert shift_summary["total_transactions"] == 1
+
+    closed = _close_shift(
+        client,
+        cashier_headers,
+        business_id,
+        shift["id"],
+        "120000.00",
+    )
+    assert as_decimal(closed["expected_cash"]) == Decimal("120000.00")
+    assert as_decimal(closed["actual_cash"]) == Decimal("120000.00")
+    assert as_decimal(closed["difference"]) == Decimal("0.00")
+    assert get_products(client, owner_headers, business_id)[0]["stock"] == 3
+
+
+def test_manager_can_checkout_without_open_shift(
+    client, owner_factory, product_factory, checkout
+):
+    owner_session, owner_headers = owner_factory()
+    business_id = owner_session["business_id"]
+    product = product_factory(headers=owner_headers, business_id=business_id, stock=5)
+    _, manager_headers = _create_member_and_login(
+        client,
+        owner_headers,
+        business_id,
+        role="MANAGER",
+        email="manager-no-shift@example.com",
+        full_name="Manajer Tanpa Shift",
+    )
+
+    response = checkout(
+        manager_headers,
+        business_id,
+        _checkout_payload(product["id"]),
+    )
+
+    assert response.status_code == 200, response.text
+    assert get_products(client, owner_headers, business_id)[0]["stock"] == 3
+
+
+def test_cashier_idempotent_checkout_replays_after_shift_closed(
+    client, owner_factory, product_factory, checkout
+):
+    owner_session, owner_headers = owner_factory()
+    business_id = owner_session["business_id"]
+    product = product_factory(headers=owner_headers, business_id=business_id, stock=5)
+    _, cashier_headers = _create_member_and_login(
+        client,
+        owner_headers,
+        business_id,
+        role="CASHIER",
+        email="cashier-idempotent@example.com",
+        full_name="Kasir Idempoten",
+    )
+    shift = _open_shift(client, cashier_headers, business_id)
+    payload = _checkout_payload(product["id"], key="cashier-shift-replay")
+
+    first = checkout(cashier_headers, business_id, payload)
+    assert first.status_code == 200, first.text
+
+    _close_shift(
+        client,
+        cashier_headers,
+        business_id,
+        shift["id"],
+        "120000.00",
+    )
+
+    replay = checkout(cashier_headers, business_id, payload)
+    assert replay.status_code == 200, replay.text
+    assert replay.json()["id"] == first.json()["id"]
+
+    new_transaction = checkout(
+        cashier_headers,
+        business_id,
+        _checkout_payload(product["id"], key="cashier-after-close"),
+    )
+    assert new_transaction.status_code == 400
+    assert "shift" in new_transaction.json()["detail"].lower()

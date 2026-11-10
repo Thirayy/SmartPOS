@@ -15,12 +15,12 @@ Centang hanya fitur yang benar-benar ada di repository dan sudah diuji.
 | Dashboard | Sebagian | Omzet, transaksi, HPP, laba kotor, pengeluaran, estimasi hasil operasional, produk terlaris. Filter rentang tanggal tersedia. |
 | Laporan per periode | Sebagian | Filter rentang tanggal (Dari/Sampai) di dashboard, daftar transaksi, dan daftar pengeluaran dengan batas hari `APP_TIMEZONE`. Belum ada preset atau ekspor. |
 | Peran & hak akses | Selesai (dasar) | `business_members` OWNER/MANAGER/CASHIER, kelola anggota, dan pembatasan modul di backend + navigasi frontend. |
-| Shift & rekonsiliasi kas | Selesai (dasar) | Buka/tutup shift, kas awal, kas aktual, selisih, dan daftar shift. |
+| Shift & rekonsiliasi kas | Selesai (dasar) | Buka/tutup shift, kas awal, kas aktual, selisih, dan daftar shift. Kasir wajib membuka shift sebelum checkout; owner/manajer dapat melewatinya. |
 | Batal/retur/refund | Selesai (dasar) | Batal/retur penuh: status `CANCELLED`, stok dikembalikan, alasan dan pelaku dicatat. Belum ada retur sebagian atau refund terintegrasi. |
 | Audit trail | Selesai (dasar) | Perubahan produk, stok, pengeluaran, penjualan, dan shift tercatat dengan nilai sebelum/sesudah. |
 | Migrasi database | Belum | Masih `Base.metadata.create_all` saat startup. Kerangka Alembic ada tetapi `script_location` belum dikonfigurasi. |
 | Backup otomatis | Sebagian | `scripts/backup_db.sh` (pg_dump + retensi) tersedia. Penjadwalan cron belum diuji. |
-| Test otomatis | Sebagian | 12 test backend lulus: checkout, stok, idempotensi, konkurensi, diskon, filter laporan, isolasi bisnis, dan otorisasi. Belum ada test shift/anggota/audit, frontend, atau end-to-end. |
+| Test otomatis | Sebagian | 16 test backend lulus: checkout, shift wajib untuk kasir, stok, idempotensi, konkurensi, diskon, filter laporan, isolasi bisnis, dan otorisasi. Belum ada test anggota/audit, frontend, atau end-to-end. |
 | AI | Sebagian | Endpoint sudah diotorisasi per bisnis dan opsional. Bukan laporan akuntansi. |
 | Ekspor, pembayaran terintegrasi, perangkat keras, multi-cabang, offline | Belum | Jangan diklaim sampai diuji end-to-end. |
 

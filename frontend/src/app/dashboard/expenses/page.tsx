@@ -506,7 +506,7 @@ export default function ExpensesPage() {
                           type="button"
                           onClick={() => openEdit(expense)}
                           aria-label={`Ubah pengeluaran ${expense.description}`}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 active:scale-95 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
@@ -517,7 +517,7 @@ export default function ExpensesPage() {
                             setDeleteError("");
                           }}
                           aria-label={`Hapus pengeluaran ${expense.description}`}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 active:scale-95 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 active:scale-95 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>

@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { fetchApi, getBusinessId } from "@/lib/api";
+import { isCashierRole, useSessionRole } from "@/lib/session";
 import { useTodayLabel } from "@/lib/use-today";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonStyles } from "@/components/ui/button";
@@ -98,8 +99,92 @@ function ProductGridSkeleton() {
   );
 }
 
+function ShiftRequiredState({
+  loading,
+  error,
+  onRetry,
+}: {
+  loading: boolean;
+  error: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="mx-auto max-w-xl py-4 sm:py-10">
+      <Card className="overflow-hidden">
+        <div className="bg-gradient-to-br from-teal-50 via-white to-white px-6 py-8 text-center dark:from-teal-500/10 dark:via-slate-900 dark:to-slate-900">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-lg shadow-teal-600/20 dark:bg-teal-500 dark:text-slate-950">
+            <Clock className="h-7 w-7" />
+          </span>
+          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
+            Khusus kasir
+          </p>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Buka shift dulu, yuk
+          </h1>
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500 dark:text-slate-400">
+            Sebelum mulai berjualan, catat dulu uang yang ada di laci. Setelah
+            shift dibuka, halaman kasir ini otomatis bisa dipakai.
+          </p>
+        </div>
+
+        <div className="space-y-4 border-t border-slate-100 p-5 dark:border-slate-800 sm:p-6">
+          {loading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-4/5" />
+            </div>
+          ) : error ? (
+            <ErrorState
+              compact
+              title="Status shift gagal dimuat"
+              message={error}
+              onRetry={onRetry}
+            />
+          ) : (
+            <ol className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[11px] font-bold text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                  1
+                </span>
+                Buka halaman <span className="font-semibold">Shift Kasir</span>.
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[11px] font-bold text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                  2
+                </span>
+                Isi kas awal sesuai uang tunai yang ada di laci.
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[11px] font-bold text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                  3
+                </span>
+                Kembali ke kasir dan mulai transaksi.
+              </li>
+            </ol>
+          )}
+
+          <Link
+            href="/dashboard/shifts"
+            className={buttonStyles({ size: "lg", className: "w-full" })}
+          >
+            <Clock className="h-4 w-4" />
+            Buka shift sekarang
+          </Link>
+
+          <p className="text-center text-[11px] leading-5 text-slate-400 dark:text-slate-500">
+            Owner dan manajer tetap bisa transaksi tanpa membuka shift.
+          </p>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export default function POSPage() {
   const businessId = getBusinessId();
+  const sessionRole = useSessionRole();
+  const cashierNeedsShift = isCashierRole(sessionRole);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,6 +205,9 @@ export default function POSPage() {
   const checkoutKeyRef = useRef<string | null>(null);
   const today = useTodayLabel();
   const [activeShift, setActiveShift] = useState<{ id: number; opened_at: string } | null>(null);
+  const [shiftLoading, setShiftLoading] = useState(true);
+  const [shiftError, setShiftError] = useState("");
+  const [shiftReloadKey, setShiftReloadKey] = useState(0);
 
   const loadProducts = useCallback(
     async (options?: { background?: boolean }) => {
@@ -182,22 +270,45 @@ export default function POSPage() {
   useEffect(() => {
     let cancelled = false;
 
-    void (async () => {
-      if (businessId === null) return;
+    const refreshShift = async () => {
+      if (businessId === null) {
+        if (!cancelled) setShiftLoading(false);
+        return;
+      }
       try {
         const data = await fetchApi(`/businesses/${businessId}/shifts/active`);
         if (!cancelled) {
-          setActiveShift(data && typeof data === "object" ? (data as { id: number; opened_at: string }) : null);
+          setActiveShift(
+            data && typeof data === "object"
+              ? (data as { id: number; opened_at: string })
+              : null
+          );
+          setShiftError("");
         }
-      } catch {
-        if (!cancelled) setActiveShift(null);
+      } catch (shiftFailure) {
+        if (!cancelled) {
+          setActiveShift(null);
+          setShiftError(getErrorMessage(shiftFailure));
+        }
+      } finally {
+        if (!cancelled) setShiftLoading(false);
       }
-    })();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") void refreshShift();
+    };
+
+    void refreshShift();
+    window.addEventListener("focus", refreshShift);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", refreshShift);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [businessId]);
+  }, [businessId, shiftReloadKey]);
 
   const cartQuantities = useMemo(
     () => new Map(cart.map((item) => [item.product.id, item.quantity])),
@@ -248,6 +359,20 @@ export default function POSPage() {
       .slice(0, 6);
   }, [total]);
 
+  if (cashierNeedsShift && (shiftLoading || !activeShift)) {
+    return (
+      <ShiftRequiredState
+        loading={shiftLoading}
+        error={shiftError}
+        onRetry={() => {
+          setShiftLoading(true);
+          setShiftError("");
+          setShiftReloadKey((value) => value + 1);
+        }}
+      />
+    );
+  }
+
   const addToCart = (product: Product) => {
     const stock = Number(product.stock);
     if (stock <= 0) return;
@@ -283,6 +408,10 @@ export default function POSPage() {
   };
 
   const openPayment = () => {
+    if (cashierNeedsShift && !activeShift) {
+      setShiftError("Buka shift terlebih dahulu sebelum melakukan transaksi.");
+      return;
+    }
     if (cart.length === 0) return;
     setCheckoutError("");
     setLastSale(null);
@@ -405,7 +534,7 @@ export default function POSPage() {
             href="/dashboard/shifts"
             title={activeShift ? "Kelola shift kasir" : "Buka shift terlebih dahulu"}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset transition",
+              "inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-semibold ring-1 ring-inset transition",
               activeShift
                 ? "bg-emerald-50 text-emerald-700 ring-emerald-600/10 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20"
                 : "bg-amber-50 text-amber-700 ring-amber-600/10 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/20"
@@ -426,7 +555,7 @@ export default function POSPage() {
             type="button"
             onClick={() => void loadProducts({ background: true })}
             disabled={refreshing}
-            className="flex h-7 cursor-pointer items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-500 transition hover:border-slate-300 hover:text-slate-900 active:scale-95 disabled:opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-white"
+            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-500 transition hover:border-slate-300 hover:text-slate-900 active:scale-95 disabled:opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-white"
           >
             <RefreshCw className={cn("h-3 w-3", refreshing && "animate-spin")} />
             Muat ulang
@@ -472,14 +601,14 @@ export default function POSPage() {
               </div>
             </div>
 
-            <div className="no-scrollbar mt-4 flex gap-1.5 overflow-x-auto">
+            <div className="mt-4 flex flex-wrap gap-1.5">
               {stockFilters.map((filter) => (
                 <button
                   key={filter.key}
                   type="button"
                   onClick={() => setStockFilter(filter.key)}
                   className={cn(
-                    "shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-xs font-semibold transition active:scale-[0.98]",
+                    "min-h-9 shrink-0 cursor-pointer rounded-full border px-3.5 py-2 text-xs font-semibold transition active:scale-[0.98]",
                     stockFilter === filter.key
                       ? "border-teal-600 bg-teal-600 text-white shadow-sm shadow-teal-600/20 dark:border-teal-500 dark:bg-teal-500 dark:text-slate-950"
                       : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-white"
@@ -694,7 +823,7 @@ export default function POSPage() {
                             type="button"
                             onClick={() => removeItem(item.product.id)}
                             aria-label={`Hapus ${item.product.name}`}
-                            className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-300 transition hover:bg-rose-50 hover:text-rose-500 active:scale-95 dark:text-slate-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
+                            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-slate-300 transition hover:bg-rose-50 hover:text-rose-500 active:scale-95 dark:text-slate-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -706,7 +835,7 @@ export default function POSPage() {
                               type="button"
                               onClick={() => updateQuantity(item.product.id, -1)}
                               aria-label={`Kurangi jumlah ${item.product.name}`}
-                              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-l-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-l-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                             >
                               <Minus className="h-3 w-3" />
                             </button>
@@ -718,7 +847,7 @@ export default function POSPage() {
                               onClick={() => updateQuantity(item.product.id, 1)}
                               disabled={item.quantity >= stock}
                               aria-label={`Tambah jumlah ${item.product.name}`}
-                              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-r-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-r-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                             >
                               <Plus className="h-3 w-3" />
                             </button>
@@ -760,7 +889,7 @@ export default function POSPage() {
                       }
                       placeholder="0"
                       aria-label="Nominal diskon"
-                      className="h-8 w-24 rounded-lg border border-slate-200 bg-white pl-7 pr-2 text-right text-xs font-semibold text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
+                      className="h-10 w-24 rounded-lg border border-slate-200 bg-white pl-7 pr-2 text-right text-xs font-semibold text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
                     />
                   </div>
                 </div>
@@ -800,7 +929,7 @@ export default function POSPage() {
       </div>
 
       {cart.length > 0 ? (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/90 p-3 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90 lg:hidden">
+        <div className="fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/90 p-3 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90 lg:hidden">
           <div className="mx-auto flex max-w-7xl items-center gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
@@ -1066,6 +1195,8 @@ export default function POSPage() {
           </div>
         )}
       </Modal>
+
+      {cart.length > 0 ? <div className="h-20 lg:hidden" aria-hidden="true" /> : null}
     </div>
   );
 }

@@ -21,7 +21,12 @@ export function useTodayLabel() {
 export function useTodayISO() {
   return useSyncExternalStore(
     subscribe,
-    () => new Date().toISOString().slice(0, 10),
+    () =>
+      new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date()),
     () => ""
   );
 }

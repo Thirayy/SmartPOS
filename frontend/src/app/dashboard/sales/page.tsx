@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { SaleResponse } from "@/types/sales";
 import { fetchApi, getBusinessId } from "@/lib/api";
+import { formatDateTime } from "@/lib/datetime";
 import { isManagerRole, useSessionRole } from "@/lib/session";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,19 +49,6 @@ const inputClass =
 
 const labelClass =
   "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
-
-function formatDateTime(value: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
 
 const paymentLabels: Record<string, string> = {
   CASH: "Tunai",

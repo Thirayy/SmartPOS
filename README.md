@@ -24,7 +24,8 @@ atau membuat klaim promosi.
   hasil operasional, dan 5 produk terlaris. Bisa difilter dengan rentang tanggal
   (Dari/Sampai) atau seluruh data.
 - Shift & cash reconciliation: buka/tutup shift, uang awal, hitung kas akhir,
-  selisih kas (actual vs expected).
+  selisih kas (actual vs expected). Kasir wajib membuka shift sebelum checkout;
+  owner/manajer dapat bertransaksi tanpa shift.
 - Audit trail: riwayat perubahan harga, stok, pengeluaran, dan akun.
 - Cancel/Return endpoint: status `CANCELLED`, kembalikan stok, catat log audit.
 - Analisis AI opsional (butuh `AI_API_KEY`) dengan otorisasi per bisnis.
@@ -37,7 +38,7 @@ atau membuat klaim promosi.
 | Laporan | Dashboard, daftar transaksi, dan daftar pengeluaran punya filter rentang tanggal (batas hari mengikuti `APP_TIMEZONE`). Belum ada preset hari/minggu/bulan, ekspor CSV/Excel, atau perbandingan periode. |
 | Istilah keuangan | "Hasil operasional" = laba kotor dikurangi pengeluaran tercatat. Bukan laba bersih akuntansi; belum termasuk pajak, penyusutan, dan biaya lain. |
 | Peran & akses | Peran OWNER/MANAGER/CASHIER lewat `business_members`, undang/nonaktifkan anggota, dan pembatasan modul di backend serta navigasi frontend. Tab profil toko hanya untuk owner. |
-| Shift & kas | Buka/tutup shift, kas awal, perkiraan kas, kas aktual, dan selisih. Belum terhubung ke laci uang/mesin kasir fisik. |
+| Shift & kas | Buka/tutup shift, kas awal, perkiraan kas, kas aktual, dan selisih. Kasir wajib membuka shift sebelum checkout; owner/manajer dapat melewatinya. Belum terhubung ke laci uang/mesin kasir fisik. |
 | Batal/retur | Batal/retur **penuh** dengan alasan, pengembalian stok, pelaku, dan audit. Belum ada retur sebagian atau refund terintegrasi bank/QRIS. |
 | Stok masuk | Belum ada pencatatan pemasok/purchase order. Barang masuk memakai penyesuaian stok manual. |
 | Audit | Nilai sebelum/sesudah dicatat untuk produk, stok, pengeluaran, penjualan, dan shift; tersedia halaman audit dengan filter. |
@@ -212,7 +213,7 @@ Semua endpoint di bawah prefix `/api/v1`. Endpoint bisnis memerlukan header
 | GET/POST | `/businesses/{id}/products` | Daftar / tambah produk. |
 | PATCH/DELETE | `/businesses/{id}/products/{product_id}` | Ubah / nonaktifkan produk. |
 | POST | `/businesses/{id}/products/{product_id}/adjust` | Penyesuaian stok. |
-| POST | `/businesses/{id}/sales/checkout` | Checkout POS. |
+| POST | `/businesses/{id}/sales/checkout` | Checkout POS. Kasir wajib punya shift terbuka. |
 | GET | `/businesses/{id}/sales`, `/sales/{sale_id}` | Riwayat dan detail struk; filter tanggal/metode/status. |
 | POST | `/businesses/{id}/sales/{sale_id}/cancel`, `/return` | Batal/retur penuh dengan alasan. |
 | GET/POST | `/businesses/{id}/expenses` | Daftar / tambah pengeluaran; filter `start_date`/`end_date`. |

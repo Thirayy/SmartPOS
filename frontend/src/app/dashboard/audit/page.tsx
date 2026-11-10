@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Filter, ScrollText } from "lucide-react";
 import { fetchApi, getBusinessId } from "@/lib/api";
+import { formatDateTime } from "@/lib/datetime";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,7 +26,7 @@ interface AuditLog {
 
 const PAGE_SIZE = 50;
 
-const entityTypes = ["ALL", "PRODUCT", "SALE", "EXPENSE", "SHIFT", "BUSINESS"];
+const entityTypes = ["ALL", "PRODUCT", "SALE", "EXPENSE", "SHIFT"];
 const actions = [
   "ALL",
   "CREATE",
@@ -51,7 +52,6 @@ const actionTones: Record<string, "emerald" | "rose" | "amber" | "sky" | "teal" 
   RETURN: "rose",
   SHIFT_OPEN: "teal",
   SHIFT_CLOSE: "slate",
-  PATCH: "sky",
 };
 
 const getErrorMessage = (error: unknown) =>
@@ -62,18 +62,6 @@ const inputClass =
 
 const labelClass =
   "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
 
 const actionLabel = (action: string) =>
   action
@@ -270,7 +258,7 @@ export default function AuditPage() {
                         type="button"
                         onClick={() => setExpanded(isExpanded ? null : log.id)}
                         aria-expanded={isExpanded}
-                        className="mt-2 flex cursor-pointer items-center gap-1 text-[11px] font-semibold text-teal-700 transition hover:text-teal-600 dark:text-teal-300 dark:hover:text-teal-200"
+                        className="mt-1 flex min-h-8 cursor-pointer items-center gap-1 py-1 text-[11px] font-semibold text-teal-700 transition hover:text-teal-600 dark:text-teal-300 dark:hover:text-teal-200"
                       >
                         <ChevronDown className={cn("h-3.5 w-3.5 transition", isExpanded && "rotate-180")} />
                         {isExpanded ? "Sembunyikan detail" : "Lihat detail perubahan"}
@@ -302,7 +290,7 @@ export default function AuditPage() {
               );
             })}
 
-            <div className="flex items-center justify-between gap-2 pt-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -315,7 +303,7 @@ export default function AuditPage() {
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Sebelumnya
               </Button>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500">
+              <span className="order-first w-full text-center text-[11px] text-slate-400 dark:text-slate-500 sm:order-none sm:w-auto">
                 Halaman {Math.floor(offset / PAGE_SIZE) + 1}
               </span>
               <Button

@@ -32,6 +32,10 @@ export function isOwnerRole(value: string | null | undefined) {
   return normalizeRole(value) === "OWNER";
 }
 
+export function isCashierRole(value: string | null | undefined) {
+  return normalizeRole(value) === "CASHIER";
+}
+
 function readStoredSession(): { role: UserRole | null; userId: number | null } {
   if (typeof window === "undefined") return { role: null, userId: null };
 

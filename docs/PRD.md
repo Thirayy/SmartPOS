@@ -29,7 +29,8 @@
 5. **Peran, Shift, dan Jejak Audit**:
    * Anggota bisnis dengan peran OWNER/MANAGER/CASHIER; owner dapat mengundang,
      mengubah peran, dan menonaktifkan anggota.
-   * Buka/tutup shift dengan kas awal, kas aktual, dan selisih kas.
+   * Buka/tutup shift dengan kas awal, kas aktual, dan selisih kas. Kasir wajib
+     membuka shift sebelum checkout; owner/manajer dapat melewatinya.
    * Batal/retur penuh dengan alasan, pengembalian stok, dan pencatatan pelaku.
    * Audit trail nilai sebelum/sesudah untuk perubahan produk, stok, pengeluaran,
      penjualan, dan shift.
