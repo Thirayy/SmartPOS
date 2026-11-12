@@ -27,3 +27,6 @@ Thumbs.db
 *.dump
 *.sql.gz
 backups/
+
+# Dataset materi HCB (data mentah & hasil ekstraksi)
+backend/dataset/
