@@ -111,11 +111,11 @@ function ShiftRequiredState({
   return (
     <div className="mx-auto max-w-xl py-4 sm:py-10">
       <Card className="overflow-hidden">
-        <div className="bg-gradient-to-br from-teal-50 via-white to-white px-6 py-8 text-center dark:from-teal-500/10 dark:via-slate-900 dark:to-slate-900">
-          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-lg shadow-teal-600/20 dark:bg-teal-500 dark:text-slate-950">
+        <div className="bg-gradient-to-br from-indigo-50 via-white to-white px-6 py-8 text-center dark:from-indigo-500/10 dark:via-slate-900 dark:to-slate-900">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 dark:bg-indigo-500 dark:text-slate-950">
             <Clock className="h-7 w-7" />
           </span>
-          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
+          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
             Khusus kasir
           </p>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -144,19 +144,19 @@ function ShiftRequiredState({
           ) : (
             <ol className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
               <li className="flex gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[11px] font-bold text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[11px] font-bold text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">
                   1
                 </span>
                 Buka halaman <span className="font-semibold">Shift Kasir</span>.
               </li>
               <li className="flex gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[11px] font-bold text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[11px] font-bold text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">
                   2
                 </span>
                 Isi kas awal sesuai uang tunai yang ada di laci.
               </li>
               <li className="flex gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[11px] font-bold text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[11px] font-bold text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">
                   3
                 </span>
                 Kembali ke kasir dan mulai transaksi.
@@ -517,8 +517,8 @@ export default function POSPage() {
     <div className="space-y-6 pb-24 lg:pb-0">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Kasir
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -586,7 +586,7 @@ export default function POSPage() {
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Cari nama atau SKU..."
                   aria-label="Cari produk"
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-9 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950"
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-9 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:bg-slate-950"
                 />
                 {search ? (
                   <button
@@ -610,7 +610,7 @@ export default function POSPage() {
                   className={cn(
                     "min-h-9 shrink-0 cursor-pointer rounded-full border px-3.5 py-2 text-xs font-semibold transition active:scale-[0.98]",
                     stockFilter === filter.key
-                      ? "border-teal-600 bg-teal-600 text-white shadow-sm shadow-teal-600/20 dark:border-teal-500 dark:bg-teal-500 dark:text-slate-950"
+                      ? "border-indigo-600 bg-indigo-600 text-white shadow-sm shadow-indigo-600/20 dark:border-indigo-500 dark:bg-indigo-500 dark:text-slate-950"
                       : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-white"
                   )}
                 >
@@ -684,7 +684,7 @@ export default function POSPage() {
                           : `Tambahkan ${product.name} ke keranjang`
                     }
                     className={cn(
-                      "group relative flex cursor-pointer flex-col rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-md active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-teal-700",
+                      "group relative flex cursor-pointer flex-col rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md active:scale-[0.99] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-700",
                       disabled && "cursor-not-allowed opacity-60 hover:translate-y-0 hover:border-slate-200 hover:shadow-sm dark:hover:border-slate-800"
                     )}
                   >
@@ -714,13 +714,13 @@ export default function POSPage() {
                         <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
                           Harga
                         </p>
-                        <p className="text-sm font-extrabold text-teal-700 dark:text-teal-300">
+                        <p className="text-sm font-extrabold text-indigo-700 dark:text-indigo-300">
                           {formatRupiah(product.selling_price)}
                         </p>
                       </div>
                       <span
                         className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition group-hover:bg-teal-600 group-hover:text-white dark:bg-slate-800 dark:text-slate-300",
+                          "flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition group-hover:bg-indigo-600 group-hover:text-white dark:bg-slate-800 dark:text-slate-300",
                           disabled && "group-hover:bg-slate-100 group-hover:text-slate-500 dark:group-hover:bg-slate-800 dark:group-hover:text-slate-300"
                         )}
                       >
@@ -733,7 +733,7 @@ export default function POSPage() {
                     </div>
 
                     {inCart > 0 ? (
-                      <p className="mt-2 text-[10px] font-semibold text-teal-600 dark:text-teal-400">
+                      <p className="mt-2 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400">
                         {inCart} di keranjang
                         {atMax ? " · maks." : ""}
                       </p>
@@ -753,10 +753,10 @@ export default function POSPage() {
           <Card className="flex flex-col overflow-hidden lg:max-h-[calc(100vh-7.5rem)]">
             <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3.5 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
-                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">
                   <ShoppingCart className="h-4 w-4" />
                   {itemCount > 0 ? (
-                    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-600 px-1 text-[9px] font-bold text-white dark:bg-teal-500 dark:text-slate-950">
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-indigo-600 px-1 text-[9px] font-bold text-white dark:bg-indigo-500 dark:text-slate-950">
                       {itemCount > 99 ? "99+" : itemCount}
                     </span>
                   ) : null}
@@ -889,7 +889,7 @@ export default function POSPage() {
                       }
                       placeholder="0"
                       aria-label="Nominal diskon"
-                      className="h-10 w-24 rounded-lg border border-slate-200 bg-white pl-7 pr-2 text-right text-xs font-semibold text-slate-800 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
+                      className="h-10 w-24 rounded-lg border border-slate-200 bg-white pl-7 pr-2 text-right text-xs font-semibold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100"
                     />
                   </div>
                 </div>
@@ -903,7 +903,7 @@ export default function POSPage() {
                       {discount > 0 ? `Hemat ${formatRupiah(discount)}` : "Belum termasuk diskon"}
                     </p>
                   </div>
-                  <p className="text-xl font-black tracking-tight text-teal-700 dark:text-teal-300">
+                  <p className="text-xl font-black tracking-tight text-indigo-700 dark:text-indigo-300">
                     {formatRupiah(total)}
                   </p>
                 </div>
@@ -995,7 +995,7 @@ export default function POSPage() {
               </div>
               <div className="flex items-center justify-between gap-3 border-t border-slate-200 pt-2.5 dark:border-slate-700">
                 <span className="text-slate-500 dark:text-slate-400">Kembalian</span>
-                <span className="text-sm font-extrabold text-teal-700 dark:text-teal-300">
+                <span className="text-sm font-extrabold text-indigo-700 dark:text-indigo-300">
                   {formatRupiah(lastSale.change_amount)}
                 </span>
               </div>
@@ -1007,13 +1007,13 @@ export default function POSPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="rounded-2xl bg-gradient-to-br from-teal-600 to-emerald-600 p-4 text-white shadow-sm">
+            <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 p-4 text-white shadow-sm">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-xs font-medium text-teal-50">Total tagihan</span>
-                <ReceiptText className="h-4 w-4 text-teal-100" />
+                <span className="text-xs font-medium text-indigo-50">Total tagihan</span>
+                <ReceiptText className="h-4 w-4 text-indigo-100" />
               </div>
               <p className="mt-1 text-3xl font-black tracking-tight">{formatRupiah(total)}</p>
-              <p className="mt-1 text-[11px] text-teal-50/90">
+              <p className="mt-1 text-[11px] text-indigo-50/90">
                 {formatNumber(itemCount)} item · Diskon {formatRupiah(discount)}
               </p>
             </div>
@@ -1029,7 +1029,7 @@ export default function POSPage() {
                   className={cn(
                     "flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 text-left transition active:scale-[0.98]",
                     isCash
-                      ? "border-teal-500 bg-teal-50 ring-2 ring-teal-500/20 dark:border-teal-500 dark:bg-teal-500/10"
+                      ? "border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-500/10"
                       : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
                   )}
                 >
@@ -1037,7 +1037,7 @@ export default function POSPage() {
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-lg",
                       isCash
-                        ? "bg-teal-600 text-white dark:bg-teal-500 dark:text-slate-950"
+                        ? "bg-indigo-600 text-white dark:bg-indigo-500 dark:text-slate-950"
                         : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"
                     )}
                   >
@@ -1059,7 +1059,7 @@ export default function POSPage() {
                   className={cn(
                     "flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 text-left transition active:scale-[0.98]",
                     !isCash
-                      ? "border-teal-500 bg-teal-50 ring-2 ring-teal-500/20 dark:border-teal-500 dark:bg-teal-500/10"
+                      ? "border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-500/10"
                       : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
                   )}
                 >
@@ -1067,7 +1067,7 @@ export default function POSPage() {
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-lg",
                       !isCash
-                        ? "bg-teal-600 text-white dark:bg-teal-500 dark:text-slate-950"
+                        ? "bg-indigo-600 text-white dark:bg-indigo-500 dark:text-slate-950"
                         : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"
                     )}
                   >
@@ -1100,7 +1100,7 @@ export default function POSPage() {
                         className={cn(
                           "cursor-pointer rounded-xl border px-2 py-2 text-xs font-semibold transition active:scale-[0.98]",
                           received === value
-                            ? "border-teal-500 bg-teal-50 text-teal-700 dark:border-teal-500 dark:bg-teal-500/10 dark:text-teal-300"
+                            ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-300"
                             : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:text-white"
                         )}
                       >
@@ -1130,7 +1130,7 @@ export default function POSPage() {
                         setAmountReceived(event.target.value.replace(/\D/g, "").slice(0, 12))
                       }
                       placeholder="0"
-                      className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-3 text-lg font-extrabold text-slate-900 outline-none transition focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:focus:border-teal-500 dark:focus:bg-slate-950"
+                      className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-3 text-lg font-extrabold text-slate-900 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:focus:border-indigo-500 dark:focus:bg-slate-950"
                     />
                   </div>
                 </div>

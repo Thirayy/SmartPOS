@@ -42,7 +42,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans transition-colors">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         {/* Logo App */}
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal-600 dark:bg-teal-500 text-white font-bold text-2xl shadow-md mb-3">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 dark:bg-indigo-500 text-white font-bold text-2xl shadow-md mb-3">
           <Store className="w-7 h-7" />
         </div>
         <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
@@ -77,7 +77,7 @@ export default function RegisterPage() {
                   placeholder="Fathi Zain"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-600 transition"
+                  className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600 transition"
                 />
               </div>
             </div>
@@ -96,7 +96,7 @@ export default function RegisterPage() {
                   placeholder="Kedai Kopi Maju"
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-600 transition"
+                  className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600 transition"
                 />
               </div>
             </div>
@@ -115,7 +115,7 @@ export default function RegisterPage() {
                   placeholder="nama@toko.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-600 transition"
+                  className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600 transition"
                 />
               </div>
             </div>
@@ -134,7 +134,7 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-600 transition"
+                  className="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-600 transition"
                 />
               </div>
             </div>
@@ -142,7 +142,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-3 bg-teal-600 hover:bg-teal-700 text-white font-medium py-2.5 rounded-xl transition shadow-sm active:scale-[0.98] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 text-sm"
+              className="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition shadow-sm active:scale-[0.98] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 text-sm"
             >
               {loading ? (
                 <>
@@ -161,7 +161,7 @@ export default function RegisterPage() {
           {/* Footer Info Bawah Card */}
           <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
             Sudah punya akun bisnis?{" "}
-            <Link href="/auth/login" className="font-bold text-teal-600 dark:text-teal-400 hover:underline">
+            <Link href="/auth/login" className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
               Masuk di sini
             </Link>
           </div>
@@ -169,7 +169,7 @@ export default function RegisterPage() {
 
         {/* Keamanan Badge */}
         <div className="mt-6 text-center flex items-center justify-center gap-1.5 text-xs text-slate-400">
-          <ShieldCheck className="w-4 h-4 text-teal-600" />
+          <ShieldCheck className="w-4 h-4 text-indigo-600" />
           <span>Sistem isolasi data aman per bisnis UMKM</span>
         </div>
       </div>

@@ -295,7 +295,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab("appearance")}
           className={`flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition sm:text-sm ${
             activeTab === "appearance"
-              ? "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+              ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
               : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
           }`}
         >
@@ -310,7 +310,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab("profile")}
           className={`flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition sm:text-sm ${
             activeTab === "profile"
-              ? "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+              ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
               : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
           }`}
         >
@@ -326,7 +326,7 @@ export default function SettingsPage() {
             onClick={() => setActiveTab("store")}
             className={`flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition sm:text-sm ${
               activeTab === "store"
-                ? "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
                 : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
             }`}
           >
@@ -342,7 +342,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab("security")}
           className={`flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition sm:text-sm ${
             activeTab === "security"
-              ? "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+              ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
               : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900"
           }`}
         >
@@ -363,7 +363,7 @@ export default function SettingsPage() {
         <div className="mt-6 max-w-3xl space-y-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
-              <Type className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Type className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               Tipografi & Font Family
             </h2>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Jenis huruf">
@@ -372,9 +372,9 @@ export default function SettingsPage() {
                 role="radio"
                 aria-checked={fontFamily === "dn-rounded"}
                 onClick={() => handleFontFamilyChange("dn-rounded")}
-                className={`w-full cursor-pointer rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 ${
+                className={`w-full cursor-pointer rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 ${
                   fontFamily === "dn-rounded"
-                    ? "border-teal-500 bg-teal-50/50 ring-2 ring-teal-500/20 dark:bg-teal-500/10"
+                    ? "border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500/20 dark:bg-indigo-500/10"
                     : "border-slate-200 hover:border-slate-300 dark:border-slate-800"
                 }`}
               >
@@ -387,9 +387,9 @@ export default function SettingsPage() {
                 role="radio"
                 aria-checked={fontFamily === "inter"}
                 onClick={() => handleFontFamilyChange("inter")}
-                className={`w-full cursor-pointer rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 ${
+                className={`w-full cursor-pointer rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 ${
                   fontFamily === "inter"
-                    ? "border-teal-500 bg-teal-50/50 ring-2 ring-teal-500/20 dark:bg-teal-500/10"
+                    ? "border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500/20 dark:bg-indigo-500/10"
                     : "border-slate-200 hover:border-slate-300 dark:border-slate-800"
                 }`}
               >
@@ -402,9 +402,9 @@ export default function SettingsPage() {
                 role="radio"
                 aria-checked={fontFamily === "system"}
                 onClick={() => handleFontFamilyChange("system")}
-                className={`w-full cursor-pointer rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 ${
+                className={`w-full cursor-pointer rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 ${
                   fontFamily === "system"
-                    ? "border-teal-500 bg-teal-50/50 ring-2 ring-teal-500/20 dark:bg-teal-500/10"
+                    ? "border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500/20 dark:bg-indigo-500/10"
                     : "border-slate-200 hover:border-slate-300 dark:border-slate-800"
                 }`}
               >
@@ -424,9 +424,9 @@ export default function SettingsPage() {
                   role="radio"
                   aria-checked={fontSize === size}
                   onClick={() => handleFontSizeChange(size)}
-                  className={`min-h-11 capitalize rounded-xl border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 ${
+                  className={`min-h-11 capitalize rounded-xl border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 ${
                     fontSize === size
-                      ? "border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+                      ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
                       : "border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-400"
                   }`}
                 >
@@ -439,7 +439,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => persistAppearance(fontFamily, fontSize)}
-            className="flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-teal-500 cursor-pointer"
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-500 cursor-pointer"
           >
             <Save className="h-4 w-4" /> Simpan Tampilan
           </button>
@@ -451,7 +451,7 @@ export default function SettingsPage() {
         <form onSubmit={handleSaveProfile} className="mt-6 max-w-2xl space-y-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
             <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-4 dark:border-slate-800">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-teal-600 text-lg font-bold text-white">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-600 text-lg font-bold text-white">
                 {profileImageUrl && !avatarFailed ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -467,8 +467,8 @@ export default function SettingsPage() {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-slate-900 dark:text-white">{fullName}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
-                  <BadgeCheck className="h-3.5 w-3.5 text-teal-600" />
-                  Role: <span className="font-semibold uppercase text-teal-600">{role}</span>
+                  <BadgeCheck className="h-3.5 w-3.5 text-indigo-600" />
+                  Role: <span className="font-semibold uppercase text-indigo-600">{role}</span>
                 </p>
                 <input
                   id="profile-photo"
@@ -481,7 +481,7 @@ export default function SettingsPage() {
                 />
                 <label
                   htmlFor="profile-photo"
-                  className="mt-3 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 focus-within:ring-2 focus-within:ring-teal-600 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="mt-3 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 focus-within:ring-2 focus-within:ring-indigo-600 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   {uploadingAvatar ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                   {uploadingAvatar ? "Mengunggah foto..." : "Ubah foto"}
@@ -498,7 +498,7 @@ export default function SettingsPage() {
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                 required
               />
             </div>
@@ -512,7 +512,7 @@ export default function SettingsPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                 required
               />
             </div>
@@ -521,7 +521,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={loadingProfile || uploadingAvatar || loadingData}
-            className="flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-teal-500 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50 cursor-pointer"
           >
             {loadingProfile ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan Profil Akun
@@ -540,7 +540,7 @@ export default function SettingsPage() {
                 type="text"
                 value={storeName}
                 onChange={(e) => setStoreName(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                 required
               />
             </div>
@@ -551,7 +551,7 @@ export default function SettingsPage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 rows={3}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
               />
             </div>
             <div>
@@ -561,7 +561,7 @@ export default function SettingsPage() {
                 type="text"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                 required
               />
             </div>
@@ -569,7 +569,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={loadingStore || loadingData}
-            className="flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-teal-500 cursor-pointer"
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-500 cursor-pointer"
           >
             {loadingStore ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Perbarui Toko
           </button>
@@ -580,7 +580,7 @@ export default function SettingsPage() {
       {activeTab === "security" && (
         <div className="mt-6 max-w-xl rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-4">
           <h2 className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
-            <Lock className="h-4 w-4 text-teal-600" /> Ubah Kata Sandi
+            <Lock className="h-4 w-4 text-indigo-600" /> Ubah Kata Sandi
           </h2>
           <div className="space-y-3">
             <label htmlFor="current-password" className="sr-only">Kata sandi saat ini</label>
@@ -616,7 +616,7 @@ export default function SettingsPage() {
             type="button"
             onClick={handleUpdatePassword}
             disabled={loadingPassword || !currentPassword || !newPassword || !confirmPassword}
-            className="flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-teal-500 disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50 cursor-pointer"
           >
             {loadingPassword ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />} Update Kata Sandi
           </button>

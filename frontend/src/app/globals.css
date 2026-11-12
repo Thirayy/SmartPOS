@@ -105,9 +105,179 @@ body {
 }
 
 @keyframes smartpos-modal-in {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.94);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.015);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-backdrop {
+  animation: smartpos-fade-in 180ms ease-out;
+}
+
+.modal-panel {
+  animation: smartpos-modal-in 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==============================================
+   PUSTAKA ANIMASI INTERAKTIF SMARTPOS
+   ============================================== */
+
+@keyframes smartpos-fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.98);
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes smartpos-fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes smartpos-fade-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes smartpos-fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes smartpos-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes smartpos-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes smartpos-float-soft {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+}
+
+@keyframes smartpos-gradient-x {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes smartpos-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes smartpos-bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes smartpos-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-7deg);
+  }
+  75% {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes smartpos-shake-in {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-7px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes smartpos-menu-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
   }
   to {
     opacity: 1;
@@ -115,12 +285,296 @@ body {
   }
 }
 
-.modal-backdrop {
-  animation: smartpos-fade-in 150ms ease-out;
+@keyframes smartpos-ping-dot {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  80%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
 }
 
-.modal-panel {
-  animation: smartpos-modal-in 180ms ease-out;
+@keyframes smartpos-glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+}
+
+@keyframes smartpos-spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in-up {
+  animation: smartpos-fade-in-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in-down {
+  animation: smartpos-fade-in-down 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in-left {
+  animation: smartpos-fade-in-left 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in-right {
+  animation: smartpos-fade-in-right 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-pop-in {
+  animation: smartpos-pop-in 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-float {
+  animation: smartpos-float 3.5s ease-in-out infinite;
+}
+
+.animate-float-soft {
+  animation: smartpos-float-soft 4s ease-in-out infinite;
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: smartpos-gradient-x 7s ease infinite;
+}
+
+.animate-bar-grow {
+  transform-origin: left center;
+  animation: smartpos-bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-wiggle {
+  animation: smartpos-wiggle 0.5s ease-in-out;
+}
+
+.animate-shake-in {
+  animation: smartpos-shake-in 0.55s ease-out both;
+}
+
+.animate-menu-up {
+  animation: smartpos-menu-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-ping-dot {
+  animation: smartpos-ping-dot 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-glow-pulse {
+  animation: smartpos-glow-pulse 2.4s ease-out infinite;
+}
+
+.animate-spin-slow {
+  animation: smartpos-spin-slow 7s linear infinite;
+}
+
+.animate-page-enter {
+  animation: smartpos-fade-in-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stagger-1 {
+  animation-delay: 60ms;
+}
+
+.stagger-2 {
+  animation-delay: 120ms;
+}
+
+.stagger-3 {
+  animation-delay: 180ms;
+}
+
+.stagger-4 {
+  animation-delay: 240ms;
+}
+
+.stagger-5 {
+  animation-delay: 300ms;
+}
+
+.stagger-6 {
+  animation-delay: 360ms;
+}
+
+.stagger-7 {
+  animation-delay: 420ms;
+}
+
+.stagger-8 {
+  animation-delay: 480ms;
+}
+
+/* Reveal saat elemen masuk viewport (dikendalikan komponen <Reveal />) */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal-from-right {
+  transform: translateX(26px);
+}
+
+.reveal-from-left {
+  transform: translateX(-26px);
+}
+
+.reveal-zoom {
+  transform: scale(0.92);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Efek kilau menyapu kartu saat hover */
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 58%
+  );
+  transform: translateX(-170%) skewX(-12deg);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.card-shine:hover::after {
+  transform: translateX(170%) skewX(-12deg);
+}
+
+/* Kilau tombol utama saat hover */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-170%) skewX(-12deg);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.btn-shine:hover::after {
+  transform: translateX(170%) skewX(-12deg);
+}
+
+/* Kilau progress bar saat baris di-hover */
+.bar-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  transform: translateX(-130%);
+  transition: transform 0.8s ease;
+  pointer-events: none;
+}
+
+.group:hover .bar-shine::after {
+  transform: translateX(130%);
+}
+
+/* Skeleton berkilau (menggantikan pulse polos) */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  animation: smartpos-shimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.dark .skeleton-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+}
+
+/* Garis bawah animasi pada link navigasi desktop */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  height: 2px;
+  width: 0;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  transform: translateX(-50%);
+  transition: width 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.nav-link:hover::after {
+  width: 58%;
+}
+
+.nav-link[aria-current="page"]::after {
+  width: 72%;
+}
+
+/* Badge muncul dengan pop kecil */
+.badge-pop {
+  animation: smartpos-pop-in 0.36s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

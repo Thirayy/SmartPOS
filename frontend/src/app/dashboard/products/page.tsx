@@ -51,7 +51,7 @@ const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Gagal memuat atau menyimpan produk.";
 
 const inputClass =
-  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950";
+  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:bg-slate-950";
 
 const labelClass =
   "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
@@ -354,8 +354,8 @@ export default function ProductsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Inventaris
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -407,7 +407,7 @@ export default function ProductsPage() {
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Cari produk atau SKU..."
                 aria-label="Cari produk"
-                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-9 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950"
+                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-9 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:bg-slate-950"
               />
               {search ? (
                 <button
@@ -515,7 +515,7 @@ export default function ProductsPage() {
                       <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 text-[11px] dark:bg-slate-800/40">
                         <div>
                           <p className="font-medium text-slate-400 dark:text-slate-500">Harga jual</p>
-                          <p className="mt-0.5 font-bold text-teal-700 dark:text-teal-300">
+                          <p className="mt-0.5 font-bold text-indigo-700 dark:text-indigo-300">
                             {formatRupiah(product.selling_price)}
                           </p>
                         </div>
@@ -628,7 +628,7 @@ export default function ProductsPage() {
                       <td className="hidden px-4 py-3 text-slate-500 dark:text-slate-400 md:table-cell">
                         {formatRupiah(product.cost_price)}
                       </td>
-                      <td className="px-4 py-3 font-bold text-teal-700 dark:text-teal-300">
+                      <td className="px-4 py-3 font-bold text-indigo-700 dark:text-indigo-300">
                         {formatRupiah(product.selling_price)}
                       </td>
                       <td className="hidden px-4 py-3 sm:table-cell">

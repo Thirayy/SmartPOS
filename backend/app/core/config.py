@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     AI_API_KEY: str | None = None
     AI_BASE_URL: str = "https://openrouter.ai/api/v1/chat/completions"
     AI_MODEL: str = "deepseek/deepseek-chat"
+    AI_EMBEDDING_MODEL: str = "paraphrase-multilingual-MiniLM-L12-v2"
 
     @field_validator("DATABASE_URL")
     @classmethod

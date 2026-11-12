@@ -158,7 +158,7 @@ export function DashboardNavbar() {
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 dark:border-slate-800/80 dark:bg-slate-900/95">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:px-6">
           <Link href="/dashboard" className="flex min-w-0 shrink-0 items-center gap-2.5" aria-label="SmartPOS, beranda">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 text-white shadow-sm shadow-teal-700/20">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-700/20">
               <Store className="h-5 w-5" aria-hidden="true" />
             </span>
             <span className="leading-tight">
@@ -181,9 +181,9 @@ export function DashboardNavbar() {
                   aria-label={item.name}
                   title={item.name}
                   className={cn(
-                    "flex h-10 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-1.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 xl:px-2.5 xl:text-[13px]",
+                    "flex h-10 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-1.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 xl:px-2.5 xl:text-[13px]",
                     active
-                      ? "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+                      ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
                       : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                   )}
                 >
@@ -231,8 +231,8 @@ export function DashboardNavbar() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600",
-                  active ? "text-teal-700 dark:text-teal-300" : "text-slate-500 dark:text-slate-400"
+                  "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-600",
+                  active ? "text-indigo-700 dark:text-indigo-300" : "text-slate-500 dark:text-slate-400"
                 )}
               >
                 <Icon className={cn("h-5 w-5", active && "stroke-[2.5]")} aria-hidden="true" />
@@ -247,9 +247,9 @@ export function DashboardNavbar() {
               aria-controls="mobile-more-menu"
               onClick={() => setOpenMorePath((openPath) => openPath === pathname ? null : pathname)}
               className={cn(
-                "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600",
+                "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1 text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-600",
                 openMorePath === pathname || moreItems.some((item) => isActivePath(pathname, item.href))
-                  ? "text-teal-700 dark:text-teal-300"
+                  ? "text-indigo-700 dark:text-indigo-300"
                   : "text-slate-500 dark:text-slate-400"
               )}
             >
@@ -277,7 +277,7 @@ export function DashboardNavbar() {
                   className={cn(
                     "flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl px-2 text-xs font-semibold",
                     active
-                      ? "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+                      ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
                       : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                   )}
                 >

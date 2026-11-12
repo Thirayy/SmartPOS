@@ -1,10 +1,10 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-type BadgeTone = "teal" | "amber" | "rose" | "slate" | "emerald" | "sky";
+type BadgeTone = "indigo" | "amber" | "rose" | "slate" | "emerald" | "sky";
 
 const toneStyles: Record<BadgeTone, string> = {
-  teal: "bg-teal-50 text-teal-700 ring-teal-600/10 dark:bg-teal-500/10 dark:text-teal-300 dark:ring-teal-400/20",
+  indigo: "bg-indigo-50 text-indigo-700 ring-indigo-600/10 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-400/20",
   emerald:
     "bg-emerald-50 text-emerald-700 ring-emerald-600/10 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/20",
   amber:

@@ -33,7 +33,7 @@ const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Terjadi kesalahan saat memproses anggota.";
 
 const inputClass =
-  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950";
+  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:bg-slate-950";
 
 const labelClass =
   "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
@@ -203,8 +203,8 @@ export default function MembersPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Tim
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -276,7 +276,7 @@ export default function MembersPage() {
             <div className="space-y-2.5">
               {members.map((member) => {
                 const isOwner = member.role === "OWNER";
-                const tone = member.role === "OWNER" ? "teal" : member.role === "MANAGER" ? "sky" : "slate";
+                const tone = member.role === "OWNER" ? "indigo" : member.role === "MANAGER" ? "sky" : "slate";
 
                 return (
                   <div
@@ -288,7 +288,7 @@ export default function MembersPage() {
                         className={cn(
                           "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold",
                           member.is_active
-                            ? "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+                            ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
                             : "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400"
                         )}
                       >
@@ -416,11 +416,11 @@ export default function MembersPage() {
                   className={cn(
                     "flex w-full cursor-pointer items-start gap-3 rounded-xl border p-3 text-left transition",
                     role === item.value
-                      ? "border-teal-500 bg-teal-50 ring-2 ring-teal-500/20 dark:border-teal-500 dark:bg-teal-500/10"
+                      ? "border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-500/10"
                       : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
                   )}
                 >
-                  <span className={cn("mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border", role === item.value ? "border-teal-600 bg-teal-600 text-white dark:border-teal-400 dark:bg-teal-400 dark:text-slate-950" : "border-slate-300 dark:border-slate-600")}>
+                  <span className={cn("mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border", role === item.value ? "border-indigo-600 bg-indigo-600 text-white dark:border-indigo-400 dark:bg-indigo-400 dark:text-slate-950" : "border-slate-300 dark:border-slate-600")}>
                     {role === item.value ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
                   </span>
                   <span>
@@ -481,7 +481,7 @@ export default function MembersPage() {
               type="checkbox"
               checked={editActive}
               onChange={(event) => setEditActive(event.target.checked)}
-              className="h-5 w-5 accent-teal-600"
+              className="h-5 w-5 accent-indigo-600"
             />
           </label>
         </form>

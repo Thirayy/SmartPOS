@@ -41,16 +41,16 @@ const actions = [
   "SHIFT_CLOSE",
 ];
 
-const actionTones: Record<string, "emerald" | "rose" | "amber" | "sky" | "teal" | "slate"> = {
+const actionTones: Record<string, "emerald" | "rose" | "amber" | "sky" | "indigo" | "slate"> = {
   CREATE: "emerald",
   UPDATE: "sky",
   DELETE: "rose",
   DEACTIVATE: "rose",
   STOCK_ADJUST: "amber",
-  CHECKOUT: "teal",
+  CHECKOUT: "indigo",
   CANCEL: "rose",
   RETURN: "rose",
-  SHIFT_OPEN: "teal",
+  SHIFT_OPEN: "indigo",
   SHIFT_CLOSE: "slate",
 };
 
@@ -58,7 +58,7 @@ const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Terjadi kesalahan saat memuat audit log.";
 
 const inputClass =
-  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:focus:border-teal-500 dark:focus:bg-slate-950";
+  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:focus:border-indigo-500 dark:focus:bg-slate-950";
 
 const labelClass =
   "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
@@ -138,8 +138,8 @@ export default function AuditPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Keamanan
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -258,7 +258,7 @@ export default function AuditPage() {
                         type="button"
                         onClick={() => setExpanded(isExpanded ? null : log.id)}
                         aria-expanded={isExpanded}
-                        className="mt-1 flex min-h-8 cursor-pointer items-center gap-1 py-1 text-[11px] font-semibold text-teal-700 transition hover:text-teal-600 dark:text-teal-300 dark:hover:text-teal-200"
+                        className="mt-1 flex min-h-8 cursor-pointer items-center gap-1 py-1 text-[11px] font-semibold text-indigo-700 transition hover:text-indigo-600 dark:text-indigo-300 dark:hover:text-indigo-200"
                       >
                         <ChevronDown className={cn("h-3.5 w-3.5 transition", isExpanded && "rotate-180")} />
                         {isExpanded ? "Sembunyikan detail" : "Lihat detail perubahan"}

@@ -8,6 +8,7 @@ from pathlib import Path
 
 import psycopg2
 import pytest
+from sqlalchemy import text
 from sqlalchemy.engine import make_url
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
@@ -79,6 +80,8 @@ from app.main import app  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def reset_database():
+    with engine.begin() as connection:
+        connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     yield

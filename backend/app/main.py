@@ -23,6 +23,8 @@ from app.products.router import router as products_router
 from app.expenses.router import router as expenses_router
 from app.reports.router import router as reports_router
 from app.ai.router import router as ai_router
+from app.ai.models import AIChatMessage, AIConversation
+from app.ai.ingest import ensure_hcb_schema
 from app.sales.router import router as sales_router
 from app.shifts.router import router as shifts_router
 
@@ -93,6 +95,7 @@ def startup_event():
         connection.execute(
             text("ALTER TABLE sales ADD COLUMN IF NOT EXISTS cancel_reason VARCHAR")
         )
+        ensure_hcb_schema(connection)
     _backfill_owner_memberships()
 
 @app.get("/")

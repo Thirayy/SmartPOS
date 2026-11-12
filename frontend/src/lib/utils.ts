@@ -29,7 +29,7 @@ export function getInitials(name: string) {
 }
 
 const productTones = [
-  "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300",
+  "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300",
   "bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300",
   "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300",
   "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300",

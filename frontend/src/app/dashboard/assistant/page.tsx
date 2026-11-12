@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Activity,
   Bot,
@@ -9,6 +10,7 @@ import {
   Copy,
   Lightbulb,
   Loader2,
+  MessageCircle,
   ShieldCheck,
   Sparkles,
   Wand2,
@@ -20,7 +22,6 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/ui/states";
 
-// Interface baru yang sesuai dengan skema Backend Pydantic
 interface ObservationItem {
   category: string;
   fact: string;
@@ -34,12 +35,19 @@ interface HypothesisItem {
 interface HcbGuidance {
   principle: string;
   reflection: string;
+  source_module?: string;
+  slide_number?: number;
+  source_file?: string;
+  source_excerpt?: string;
+  ethics_topic?: string;
+  business_relevance?: string;
 }
 
 interface ActionRecommendation {
   title: string;
   action_plan: string;
   expected_impact: string;
+  hcb_basis?: string;
 }
 
 interface AnalysisResult {
@@ -49,6 +57,7 @@ interface AnalysisResult {
   hypotheses: HypothesisItem[];
   hcb_guidance?: HcbGuidance[];
   recommendations: ActionRecommendation[];
+  analysis_mode?: "AI" | "LOCAL";
 }
 
 const getErrorMessage = (error: unknown) =>
@@ -82,6 +91,7 @@ function AnalysisSkeleton() {
 }
 
 export default function AssistantPage() {
+  const router = useRouter();
   const businessId = getBusinessId();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -108,6 +118,16 @@ export default function AssistantPage() {
     }
   };
 
+  const openDiscussion = () => {
+    if (!result) return;
+    try {
+      window.sessionStorage.setItem("smartpos_last_analysis", JSON.stringify(result));
+    } catch {
+      // Abaikan bila sessionStorage tidak tersedia.
+    }
+    router.push("/dashboard/assistant/chat");
+  };
+
   const copyInsights = async () => {
     if (!result) return;
 
@@ -121,8 +141,11 @@ ${result.observations.map((o) => `- [${o.category}] ${o.fact}`).join("\n")}
 *ISU & AKAR MASALAH*:
 ${result.hypotheses.map((h) => `- ${h.issue}: ${h.root_cause}`).join("\n")}
 
+*PERSPEKTIF ETIKA DAGANG HCB*:
+${(result.hcb_guidance ?? []).map((h) => `- ${h.principle} [${h.source_module ?? "Tidak tersedia"} - Slide ${h.slide_number ?? "-"}]\n  ${h.reflection}${h.source_excerpt ? `\n  Kutipan: "${h.source_excerpt}"` : ""}`).join("\n") || "- Belum ada rujukan HCB yang selaras."}
+
 *REKOMENDASI AKSI*:
-${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r.expected_impact})`).join("\n")}
+${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r.expected_impact})${r.hcb_basis ? ` [Basis HCB: ${r.hcb_basis}]` : ""}`).join("\n")}
     `.trim();
 
     try {
@@ -138,8 +161,8 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Insight
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -150,7 +173,7 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
           </p>
         </div>
 
-        <Badge tone="teal" className="w-fit">
+        <Badge tone="indigo" className="w-fit">
           <Sparkles className="h-3 w-3" />
           Business analyst
         </Badge>
@@ -159,7 +182,7 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
       <Card className="overflow-hidden">
         <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="p-6 sm:p-8">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">
               <Bot className="h-6 w-6" />
             </span>
             <h2 className="mt-4 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -167,11 +190,11 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
             </h2>
             <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500 dark:text-slate-400">
               AI akan membaca omzet, laba kotor, dan beban operasional Anda, lalu memberi
-              observasi kuantitatif, perspektif etika dagang HCB, serta rekomendasi aksi.
+              observasi kuantitatif, perspektif etika dagang HCB beserta sumber slidenya, serta rekomendasi aksi.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              {["Observasi metrik", "Perspektif HCB", "Rekomendasi aksi"].map((item) => (
+              {["Observasi metrik", "Perspektif HCB & Sumber", "Rekomendasi aksi"].map((item) => (
                 <Badge key={item} tone="slate">
                   <Check className="h-3 w-3" />
                   {item}
@@ -194,21 +217,21 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
             </p>
           </div>
 
-          <div className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-600 to-emerald-700 p-6 text-white sm:p-8">
+          <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-600 to-emerald-700 p-6 text-white sm:p-8">
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
             <div className="absolute -bottom-16 -left-10 h-48 w-48 rounded-full bg-emerald-300/20 blur-3xl" />
             <div className="relative">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-100">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-100">
                 Yang akan Anda dapatkan
               </p>
               <ul className="mt-4 space-y-3 text-sm">
                 {[
                   "Skor kesehatan bisnis & ringkasan",
                   "Observasi data & akar masalah",
-                  "Panduan etika muamalah (HCB)",
+                  "Panduan etika muamalah (HCB) + Rujukan PPTX",
                   "Langkah perbaikan prioritas",
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-teal-50">
+                  <li key={item} className="flex items-start gap-2.5 text-indigo-50">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/15 ring-1 ring-inset ring-white/20">
                       <Check className="h-3 w-3" />
                     </span>
@@ -216,7 +239,7 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
                   </li>
                 ))}
               </ul>
-              <p className="mt-6 rounded-xl bg-white/10 p-3 text-[11px] leading-5 text-teal-50/90 ring-1 ring-inset ring-white/15">
+              <p className="mt-6 rounded-xl bg-white/10 p-3 text-[11px] leading-5 text-indigo-50/90 ring-1 ring-inset ring-white/15">
                 Hasil bersifat saran. Keputusan akhir tetap berada di tangan pemilik usaha.
               </p>
             </div>
@@ -240,22 +263,34 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
           <Card className="p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Badge tone="teal">Skor Kesehatan</Badge>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge tone="indigo">Skor Kesehatan</Badge>
+                  <Badge tone={result.analysis_mode === "AI" ? "indigo" : "slate"}>
+                    {result.analysis_mode === "AI" ? "Analisis AI" : "Analisis lokal"}
+                  </Badge>
                   <span className="text-xs text-slate-500">Berdasarkan data keuangan agregat</span>
                 </div>
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                   {result.summary}
                 </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={openDiscussion}
+                  className="mt-2"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Diskusi lebih lanjut
+                </Button>
               </div>
 
-              <div className="flex items-center gap-3 rounded-2xl bg-teal-50/80 p-3 px-4 dark:bg-teal-500/10">
-                <Activity className="h-7 w-7 text-teal-600 dark:text-teal-400" />
+              <div className="flex items-center gap-3 rounded-2xl bg-indigo-50/80 p-3 px-4 dark:bg-indigo-500/10">
+                <Activity className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Health Score
                   </span>
-                  <div className="text-xl font-black text-teal-700 dark:text-teal-300">
+                  <div className="text-xl font-black text-indigo-700 dark:text-indigo-300">
                     {result.health_score} / 100
                   </div>
                 </div>
@@ -278,7 +313,7 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
                     key={idx}
                     className="rounded-xl border border-slate-100 bg-slate-50/60 p-3 text-xs dark:border-slate-800 dark:bg-slate-800/40"
                   >
-                    <span className="font-bold text-teal-600 dark:text-teal-400 block mb-0.5">
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400 block mb-0.5">
                       [{obs.category}]
                     </span>
                     <p className="text-slate-700 dark:text-slate-300">{obs.fact}</p>
@@ -300,26 +335,53 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
               </div>
             </Card>
 
-            {/* HCB Guidance */}
+            {/* HCB Guidance with Source Attribution */}
             <Card className="p-5 space-y-4">
               <div className="flex items-center gap-2 border-b border-slate-100 pb-3 dark:border-slate-800">
-                <ShieldCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <ShieldCheck className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Perspektif Etika Dagang (HCB)
+                  Perspektif Etika Dagang (HCB) & Rujukan
                 </h3>
               </div>
               <div className="space-y-3">
                 {result.hcb_guidance?.map((hcb, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-teal-100 bg-teal-50/40 p-3 text-xs dark:border-teal-900/30 dark:bg-teal-950/20"
+                    className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-3.5 text-xs space-y-2 dark:border-indigo-900/30 dark:bg-indigo-950/20"
                   >
-                    <span className="font-bold text-teal-700 dark:text-teal-300 block mb-1">
-                      Prinsip: {hcb.principle}
-                    </span>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-bold text-indigo-700 dark:text-indigo-300">
+                        Prinsip: {hcb.principle}
+                      </span>
+                      {hcb.source_module && (
+                        <span className="rounded-md bg-indigo-700/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-800 dark:bg-indigo-400/10 dark:text-indigo-300">
+                          📖 {hcb.source_module} (Slide {hcb.slide_number})
+                        </span>
+                      )}
+                    </div>
+                    {hcb.ethics_topic ? (
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-500 dark:text-indigo-300">
+                        {hcb.ethics_topic}
+                      </p>
+                    ) : null}
                     <p className="text-slate-600 italic dark:text-slate-400">&ldquo;{hcb.reflection}&rdquo;</p>
+                    {hcb.business_relevance ? (
+                      <p className="text-[11px] leading-5 text-slate-500 dark:text-slate-400">
+                        Korelasi bisnis: {hcb.business_relevance}
+                      </p>
+                    ) : null}
+                    {hcb.source_excerpt ? (
+                      <p className="rounded-lg bg-white/60 p-2 text-[11px] leading-5 text-slate-500 dark:bg-slate-900/40 dark:text-slate-400">
+                        &ldquo;{hcb.source_excerpt}&rdquo;
+                      </p>
+                    ) : null}
                   </div>
                 ))}
+                {!result.hcb_guidance?.length ? (
+                  <p className="text-xs italic text-slate-400">
+                    Belum ada panduan HCB yang selaras dengan data saat ini.
+                  </p>
+                ) : null}
               </div>
             </Card>
           </div>
@@ -345,12 +407,17 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
                   key={idx}
                   className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm space-y-2 dark:border-slate-800 dark:bg-slate-900"
                 >
-                  <h4 className="font-bold text-xs text-teal-700 dark:text-teal-400">
+                  <h4 className="font-bold text-xs text-indigo-700 dark:text-indigo-400">
                     {rec.title}
                   </h4>
                   <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
                     {rec.action_plan}
                   </p>
+                  {rec.hcb_basis ? (
+                    <p className="rounded-lg bg-indigo-50/70 p-2 text-[10px] leading-4 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300">
+                      Basis HCB: {rec.hcb_basis}
+                    </p>
+                  ) : null}
                   <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] dark:border-slate-800">
                     <span className="text-slate-400">Ekspektasi Dampak:</span>
                     <span className="font-semibold text-amber-600 dark:text-amber-400">
@@ -373,8 +440,7 @@ ${result.recommendations.map((r) => `- ${r.title}: ${r.action_plan} (Impact: ${r
             Belum ada analisis
           </p>
           <p className="mt-1 max-w-sm text-xs leading-5 text-slate-500 dark:text-slate-400">
-            Klik tombol mulai analisis untuk melihat ringkasan, analisis etika HCB, dan rekomendasi
-            AI untuk usaha Anda.
+            Klik tombol mulai analisis untuk melihat ringkasan, analisis etika HCB beserta sumber slidenya, dan rekomendasi AI.
           </p>
         </Card>
       ) : null}

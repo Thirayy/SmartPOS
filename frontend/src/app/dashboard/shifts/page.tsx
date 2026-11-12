@@ -44,10 +44,10 @@ const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Terjadi kesalahan saat memproses shift.";
 
 const inputClass =
-  "h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950";
+  "h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:bg-slate-950";
 
 const textareaClass =
-  "w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950";
+  "w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:bg-slate-950";
 
 const labelClass =
   "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
@@ -251,8 +251,8 @@ export default function ShiftsPage() {
     <div className="space-y-5 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Kasir
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -300,7 +300,7 @@ export default function ShiftsPage() {
           <div
             className={cn(
               "h-1.5 w-full",
-              activeShift ? "bg-emerald-500" : "bg-teal-500"
+              activeShift ? "bg-emerald-500" : "bg-indigo-500"
             )}
           />
           <div className="p-5 sm:p-6">
@@ -310,7 +310,7 @@ export default function ShiftsPage() {
                   "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
                   activeShift
                     ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
-                    : "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300"
+                    : "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
                 )}
               >
                 <Clock className="h-5 w-5" />
@@ -333,7 +333,7 @@ export default function ShiftsPage() {
                   <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     Uang yang seharusnya ada di laci
                   </p>
-                  <p className="mt-1 text-2xl font-extrabold tracking-tight text-teal-700 tabular-nums dark:text-teal-300 sm:text-3xl">
+                  <p className="mt-1 text-2xl font-extrabold tracking-tight text-indigo-700 tabular-nums dark:text-indigo-300 sm:text-3xl">
                     {formatRupiah(expectedCash)}
                   </p>
 
@@ -442,7 +442,7 @@ export default function ShiftsPage() {
               },
             ].map((step, index) => (
               <li key={step.title} className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[11px] font-extrabold text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[11px] font-extrabold text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300">
                   {index + 1}
                 </span>
                 <div>
@@ -566,7 +566,7 @@ export default function ShiftsPage() {
                         <dt className="text-slate-400 dark:text-slate-500">
                           Seharusnya
                         </dt>
-                        <dd className="mt-0.5 font-semibold tabular-nums text-teal-700 dark:text-teal-300">
+                        <dd className="mt-0.5 font-semibold tabular-nums text-indigo-700 dark:text-indigo-300">
                           {formatRupiah(shift.expected_cash ?? expected)}
                         </dd>
                       </div>
@@ -744,7 +744,7 @@ export default function ShiftsPage() {
                   <span className="font-semibold text-slate-600 dark:text-slate-300">
                     Uang seharusnya
                   </span>
-                  <span className="text-sm font-extrabold tabular-nums text-teal-700 dark:text-teal-300">
+                  <span className="text-sm font-extrabold tabular-nums text-indigo-700 dark:text-indigo-300">
                     {formatRupiah(closingExpectedCash)}
                   </span>
                 </div>

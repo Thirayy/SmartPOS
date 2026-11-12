@@ -36,7 +36,7 @@ const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Gagal memuat data dashboard.";
 
 const inputClass =
-  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:focus:border-teal-500 dark:focus:bg-slate-950";
+  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:focus:border-indigo-500 dark:focus:bg-slate-950";
 
 const labelClass =
   "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
@@ -189,9 +189,9 @@ export default function DashboardPage() {
       label: "Total omzet",
       value: formatRupiah(data?.total_omzet ?? 0),
       icon: TrendingUp,
-      tone: "bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300",
+      tone: "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300",
       pill: "Pendapatan",
-      pillTone: "teal" as const,
+      pillTone: "indigo" as const,
     },
     {
       label: "Total transaksi",
@@ -232,8 +232,8 @@ export default function DashboardPage() {
     return (
       <div className="space-y-6">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Dashboard
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -270,8 +270,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Dashboard
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -390,20 +390,20 @@ export default function DashboardPage() {
             })}
           </div>
 
-          <Card className="overflow-hidden bg-gradient-to-br from-teal-600 to-emerald-600 p-0 text-white shadow-lg shadow-teal-900/10">
+          <Card className="overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-600 p-0 text-white shadow-lg shadow-indigo-900/10">
             <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div className="flex items-center gap-4">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-inset ring-white/20 backdrop-blur-sm">
                   <ArrowUpRight className="h-6 w-6" />
                 </span>
                 <div>
-                  <p className="text-xs font-medium text-teal-50">
+                  <p className="text-xs font-medium text-indigo-50">
                     Hasil operasional (estimasi)
                   </p>
                   <p className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">
                     {formatRupiah(data.estimated_operating_result)}
                   </p>
-                  <p className="mt-1 text-[11px] text-teal-50/80">
+                  <p className="mt-1 text-[11px] text-indigo-50/80">
                     Laba kotor dikurangi pengeluaran tercatat. Belum termasuk pajak,
                     penyusutan, dan biaya lain.
                   </p>
@@ -411,11 +411,11 @@ export default function DashboardPage() {
               </div>
               <div className="flex gap-6 rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-inset ring-white/15">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-teal-100">HPP</p>
+                  <p className="text-[10px] uppercase tracking-wider text-indigo-100">HPP</p>
                   <p className="mt-0.5 text-sm font-bold">{formatRupiah(data.total_cogs)}</p>
                 </div>
                 <div className="border-l border-white/20 pl-6">
-                  <p className="text-[10px] uppercase tracking-wider text-teal-100">Laba kotor</p>
+                  <p className="text-[10px] uppercase tracking-wider text-indigo-100">Laba kotor</p>
                   <p className="mt-0.5 text-sm font-bold">{formatRupiah(data.estimated_gross_profit)}</p>
                 </div>
               </div>
@@ -489,7 +489,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                           <div
-                            className="h-full rounded-full bg-teal-500 dark:bg-teal-400"
+                            className="h-full rounded-full bg-indigo-500 dark:bg-indigo-400"
                             style={{ width: `${Math.max(6, percentage)}%` }}
                           />
                         </div>

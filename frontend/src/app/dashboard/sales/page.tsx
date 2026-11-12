@@ -45,7 +45,7 @@ const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Gagal memuat histori transaksi.";
 
 const inputClass =
-  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950";
+  "h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:bg-slate-950";
 
 const labelClass =
   "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500";
@@ -206,8 +206,8 @@ export default function SalesHistoryPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
             Penjualan
           </div>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
@@ -360,11 +360,11 @@ export default function SalesHistoryPage() {
                           onClick={() => setSelectedSale(sale)}
                           className={cn(
                             "cursor-pointer transition hover:bg-slate-50/70 dark:hover:bg-slate-800/30",
-                            selected && "bg-teal-50/50 dark:bg-teal-500/5"
+                            selected && "bg-indigo-50/50 dark:bg-indigo-500/5"
                           )}
                         >
                           <td className="px-4 py-3">
-                            <p className="font-mono text-xs font-bold text-teal-700 dark:text-teal-300">
+                            <p className="font-mono text-xs font-bold text-indigo-700 dark:text-indigo-300">
                               {sale.transaction_number}
                             </p>
                             <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-500 sm:hidden">
@@ -440,7 +440,7 @@ export default function SalesHistoryPage() {
               <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-xs dark:border-slate-700 dark:bg-slate-950/40">
                 <div className="border-b border-slate-200 pb-3 text-center dark:border-slate-700">
                   <p className="text-sm font-black tracking-wider text-slate-900 dark:text-white">SMARTPOS</p>
-                  <p className="mt-1 font-mono text-[11px] font-semibold text-teal-700 dark:text-teal-300">
+                  <p className="mt-1 font-mono text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">
                     {selectedSale.transaction_number}
                   </p>
                   <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">
@@ -486,7 +486,7 @@ export default function SalesHistoryPage() {
                   </div>
                   <div className="flex justify-between text-sm font-black text-slate-900 dark:text-white">
                     <span>Total</span>
-                    <span className="text-teal-700 dark:text-teal-300">{formatRupiah(selectedSale.total_amount)}</span>
+                    <span className="text-indigo-700 dark:text-indigo-300">{formatRupiah(selectedSale.total_amount)}</span>
                   </div>
                   <div className="flex justify-between text-slate-500 dark:text-slate-400">
                     <span>Diterima</span>
@@ -584,7 +584,7 @@ export default function SalesHistoryPage() {
               value={cancelReason}
               onChange={(event) => setCancelReason(event.target.value)}
               placeholder="Contoh: salah input / pelanggan membatalkan pesanan"
-              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-950"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:bg-slate-950"
             />
           </div>
         </form>

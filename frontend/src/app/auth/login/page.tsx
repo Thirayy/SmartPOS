@@ -118,7 +118,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-600/20 mb-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-600/20 mb-3">
             <Store className="h-6 w-6" />
           </div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">SmartPOS Login</h1>
@@ -146,7 +146,7 @@ export default function LoginPage() {
                 placeholder="nama@toko.com"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
               />
             </div>
           </div>
@@ -159,7 +159,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowForgotModal(true)}
-                className="text-xs font-semibold text-teal-600 hover:underline dark:text-teal-400 cursor-pointer"
+                className="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400 cursor-pointer"
               >
                 Lupa password?
               </button>
@@ -171,7 +171,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 focus:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-white"
               />
             </div>
           </div>
@@ -181,7 +181,7 @@ export default function LoginPage() {
             disabled={!isFormValid || loading}
             className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition shadow-sm ${
               isFormValid && !loading
-                ? "bg-teal-600 text-white hover:bg-teal-500 active:scale-95 cursor-pointer"
+                ? "bg-indigo-600 text-white hover:bg-indigo-500 active:scale-95 cursor-pointer"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600"
             }`}
           >
@@ -195,7 +195,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowRegisterModal(true)}
-              className="font-bold text-teal-600 hover:underline dark:text-teal-400 cursor-pointer"
+              className="font-bold text-indigo-600 hover:underline dark:text-indigo-400 cursor-pointer"
             >
               Daftar sekarang
             </button>
@@ -208,7 +208,7 @@ export default function LoginPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs modal-backdrop">
           <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900 modal-panel">
             <div className="flex items-center gap-2.5 mb-3">
-              <KeyRound className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <KeyRound className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               <h3 className="text-base font-bold text-slate-900 dark:text-white">Pemulihan Password</h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -217,7 +217,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowForgotModal(false)}
-              className="mt-4 w-full rounded-xl bg-teal-600 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-teal-500 cursor-pointer"
+              className="mt-4 w-full rounded-xl bg-indigo-600 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-500 cursor-pointer"
             >
               Mengerti
             </button>
@@ -230,7 +230,7 @@ export default function LoginPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs modal-backdrop">
           <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900 modal-panel">
             <div className="flex items-center gap-2.5 mb-3">
-              <Store className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <Store className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               <h3 className="text-base font-bold text-slate-900 dark:text-white">Daftar Akun Baru</h3>
             </div>
             {regError && (
@@ -252,7 +252,7 @@ export default function LoginPage() {
                     placeholder="Contoh: Toko Berkah"
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                     required
                   />
                 </div>
@@ -263,7 +263,7 @@ export default function LoginPage() {
                     placeholder="email@toko.com"
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                     required
                   />
                 </div>
@@ -274,7 +274,7 @@ export default function LoginPage() {
                     placeholder="Nama usaha / toko"
                     value={regBusinessName}
                     onChange={(e) => setRegBusinessName(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                     required
                   />
                 </div>
@@ -285,7 +285,7 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-teal-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                     required
                   />
                 </div>
@@ -300,7 +300,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 rounded-xl bg-teal-600 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-teal-500 cursor-pointer"
+                    className="flex-1 rounded-xl bg-indigo-600 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-500 cursor-pointer"
                   >
                     Daftar & Masuk
                   </button>
